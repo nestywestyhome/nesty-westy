@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nesty Westy — Farmhouse Ceramic Vase Set</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --dark:#1C1F2E;
+    --ivory:#F5F0E8;
+    --offwhite:#EDE7DA;
+    --sage:#7A9E7E;
+    --darksage:#5C8060;
+    --muted:#9A9488;
+    --border:#DDD8CE;
+    --white:#FFFFFF;
+    --red:#C0392B;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    font-family:'Inter',sans-serif;
+    background:var(--ivory);
+    color:var(--dark);
+    max-width:430px;
+    margin:0 auto;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{text-decoration:none; color:inherit;}
+
+  .fade-up{
+    opacity:0;
+    transform:translateY(14px);
+    animation:fadeUp .6s ease forwards;
+  }
+  @keyframes fadeUp{
+    to{opacity:1; transform:translateY(0);}
+  }
+
+  /* HEADER */
+  header{
+    position:sticky;
+    top:0;
+    z-index:50;
+    background:var(--dark);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:12px 16px;
+  }
+  .logo{
+    font-family:'DM Serif Display', serif;
+    font-size:18px;
+    color:var(--ivory);
+  }
+  .logo span{color:var(--sage);}
+  .header-right{
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .pin-pill{
+    font-size:10px;
+    color:var(--muted);
+    background:rgba(255,255,255,0.05);
+    border:1px solid rgba(255,255,255,0.1);
+    padding:5px 9px;
+    border-radius:999px;
+    white-space:nowrap;
+  }
+  .shop-now-btn{
+    background:var(--sage);
+    color:#fff;
+    font-size:11px;
+    font-weight:700;
+    padding:7px 12px;
+    border-radius:999px;
+    white-space:nowrap;
+  }
+
+  /* HERO */
+  .hero{
+    position:relative;
+    background:linear-gradient(160deg, #1C1F2E 0%, #252836 100%);
+    padding:36px 20px 44px;
+    overflow:hidden;
+  }
+  .hero::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:repeating-linear-gradient(
+      -45deg,
+      rgba(122,158,126,0.03) 0px,
+      rgba(122,158,126,0.03) 2px,
+      transparent 2px,
+      transparent 14px
+    );
+    pointer-events:none;
+  }
+  .hero-content{position:relative; z-index:1;}
+  .kicker{
+    display:inline-block;
+    font-size:10px;
+    text-transform:uppercase;
+    letter-spacing:1px;
+    color:var(--sage);
+    border:1px solid var(--sage);
+    padding:5px 12px;
+    border-radius:999px;
+    margin-bottom:18px;
+  }
+  .hero-emoji{
+    font-size:42px;
+    margin-bottom:14px;
+  }
+  h1.hero-title{
+    font-family:'DM Serif Display', serif;
+    font-size:30px;
+    line-height:1.25;
+    color:var(--ivory);
+    margin-bottom:12px;
+  }
+  h1.hero-title em{
+    font-style:italic;
+    color:var(--sage);
+  }
+  .hero-sub{
+    font-size:12px;
+    color:rgba(245,240,232,0.7);
+    line-height:1.6;
+  }
+
+  /* SCORE STRIP */
+  .score-card{
+    background:var(--white);
+    margin:-20px 14px 0;
+    border-radius:16px;
+    box-shadow:0 10px 30px rgba(28,31,46,0.15);
+    padding:18px 18px 16px;
+    position:relative;
+    z-index:2;
+  }
+  .score-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    margin-bottom:8px;
+  }
+  .score-label{
+    font-size:12px;
+    font-weight:600;
+    color:var(--dark);
+  }
+  .score-value{
+    font-family:'DM Serif Display', serif;
+    font-size:20px;
+    color:var(--sage);
+  }
+  .score-bar-track{
+    width:100%;
+    height:6px;
+    background:var(--border);
+    border-radius:999px;
+    overflow:hidden;
+    margin-bottom:16px;
+  }
+  .score-bar-fill{
+    height:100%;
+    width:0%;
+    background:var(--sage);
+    border-radius:999px;
+    transition:width 1.2s cubic-bezier(.4,0,.2,1);
+  }
+  .stats-row{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+  }
+  .stat{
+    text-align:center;
+    padding:0 4px;
+    border-left:1px solid var(--border);
+  }
+  .stat:first-child{border-left:none;}
+  .stat-value{
+    font-size:13px;
+    font-weight:700;
+    color:var(--dark);
+  }
+  .stat-label{
+    font-size:9px;
+    color:var(--muted);
+    margin-top:2px;
+    text-transform:uppercase;
+    letter-spacing:0.3px;
+  }
+
+  /* FLOATING CTA */
+  .floating-cta{
+    position:fixed;
+    bottom:14px;
+    right:14px;
+    background:var(--sage);
+    color:#fff;
+    font-weight:700;
+    font-size:13px;
+    padding:13px 20px;
+    border-radius:999px;
+    box-shadow:0 8px 20px rgba(122,158,126,0.5);
+    z-index:60;
+    animation:pulse 1.8s infinite;
+  }
+  @keyframes pulse{
+    0%{transform:scale(1);}
+    50%{transform:scale(1.05);}
+    100%{transform:scale(1);}
+  }
+
+  section{padding:26px 18px;}
+
+  /* PRODUCT NAME + RATING */
+  .product-name{
+    font-family:'DM Serif Display', serif;
+    font-size:22px;
+    line-height:1.2;
+    margin-bottom:10px;
+  }
+  .rating-row{
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .stars{color:#E8B84B; font-size:15px; letter-spacing:1px;}
+  .rating-num{font-weight:700; font-size:13px;}
+  .review-count{font-size:12px; color:var(--muted);}
+
+  /* CTA BUTTON */
+  .cta-btn{
+    display:block;
+    width:100%;
+    background:var(--dark);
+    color:var(--ivory);
+    font-weight:600;
+    font-size:15px;
+    text-align:center;
+    padding:16px;
+    border-radius:12px;
+    margin-top:18px;
+    transition:transform .15s ease;
+  }
+  .cta-btn:active{transform:scale(0.97);}
+  .amazon-pill{
+    display:inline-block;
+    background:var(--sage);
+    color:#fff;
+    font-size:10px;
+    font-weight:700;
+    padding:2px 8px;
+    border-radius:999px;
+    margin-left:4px;
+  }
+
+  /* TRUST ROW */
+  .trust-row{
+    text-align:center;
+    font-size:10px;
+    color:var(--muted);
+    padding:14px 18px 0;
+  }
+
+  /* STORY */
+  .section-label{
+    font-size:9px;
+    text-transform:uppercase;
+    letter-spacing:1.5px;
+    color:var(--darksage);
+    font-weight:700;
+    margin-bottom:10px;
+  }
+  .story-text{
+    font-size:13px;
+    line-height:1.7;
+    color:#3a3d4a;
+  }
+  .story-text em{
+    font-style:italic;
+    color:var(--darksage);
+  }
+
+  /* WHY IT WORKS */
+  .why-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+    margin-top:12px;
+  }
+  .why-card{
+    background:var(--offwhite);
+    border-radius:10px;
+    padding:14px 12px;
+  }
+  .why-emoji{font-size:20px; margin-bottom:8px;}
+  .why-title{font-size:12px; font-weight:700; margin-bottom:3px;}
+  .why-sub{font-size:10px; color:var(--muted); line-height:1.4;}
+
+  /* PROS & CONS */
+  .pc-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+    margin-top:12px;
+  }
+  .pc-card{
+    background:var(--offwhite);
+    border-radius:10px;
+    padding:14px;
+  }
+  .pc-title{
+    font-size:12px;
+    font-weight:700;
+    margin-bottom:10px;
+  }
+  .pc-title.pros{color:var(--darksage);}
+  .pc-title.cons{color:var(--red);}
+  .pc-list{list-style:none;}
+  .pc-list li{
+    font-size:11px;
+    color:#555;
+    margin-bottom:8px;
+    padding-left:14px;
+    position:relative;
+    line-height:1.4;
+  }
+  .pc-list.pros li::before{
+    content:"+";
+    position:absolute;
+    left:0;
+    color:var(--darksage);
+    font-weight:700;
+  }
+  .pc-list.cons li::before{
+    content:"−";
+    position:absolute;
+    left:0;
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* VERDICT */
+  .verdict-box{
+    background:var(--dark);
+    border-radius:16px;
+    padding:22px;
+  }
+  .quote-mark{
+    font-family:'DM Serif Display', serif;
+    font-size:44px;
+    color:var(--sage);
+    opacity:0.6;
+    line-height:1;
+    margin-bottom:6px;
+  }
+  .verdict-text{
+    font-family:'DM Serif Display', serif;
+    font-style:italic;
+    font-size:15px;
+    color:var(--ivory);
+    line-height:1.6;
+    margin-bottom:14px;
+  }
+  .verdict-sig{
+    font-size:10px;
+    color:var(--sage);
+    text-transform:uppercase;
+    letter-spacing:1px;
+  }
+
+  .final-cta-section{padding-bottom:80px;}
+
+  /* FOOTER */
+  footer{
+    background:var(--dark);
+    text-align:center;
+    padding:28px 20px;
+  }
+  .footer-logo{
+    font-family:'DM Serif Display', serif;
+    font-size:18px;
+    color:var(--ivory);
+    margin-bottom:10px;
+  }
+  .footer-logo span{color:var(--sage);}
+  .footer-tag{
+    font-size:12px;
+    color:rgba(245,240,232,0.75);
+    margin-bottom:6px;
+  }
+  .footer-welcome{
+    font-size:12px;
+    color:var(--sage);
+    margin-bottom:16px;
+  }
+  .footer-disclaimer{
+    font-size:10px;
+    color:var(--muted);
+    line-height:1.5;
+  }
+</style>
+</head>
+<body>
+
+  <header>
+    <div class="logo">Nesty <span>Westy</span></div>
+    <div class="header-right">
+      <span class="pin-pill">📌 Pinterest</span>
+      <a class="shop-now-btn" href="https://www.amazon.com/Vintage-Chinoiserie-Decorative-Farmhouse-Bookshelf/dp/B0FFMC44RQ?crid=2BO2PR4DM4RZA&dib=eyJ2IjoiMSJ9.SMeRV3Uz7UOGm0-sfZZCkgwVL676EGihVIlVlulPJyL_7MlHXx1q_cJZULMS-s0GoUmMw0QBWTN27TOsOMgaM9DxpNTdBB3Moqj_43OX_4jNznul9rpS0OW_8Xrk7w91hdrYS2P_ERD43661Wh97Rl5BferToJ-OXSwPQ2F_ww92dMgVkHvnCAT8uVP5M4GdcXPkK-JWeM13cAs5RZuDKjfxczXPEVuzMunvbFvN0bn8QHa23ZkY4jsIEmf2zLMfjPhHC0JLVcbOdS52roUrGsuJ8wUp2PHJ-WTl3uf6veQ.5Wv0zk18fNEA5uJwVU7caKwsCgQ4qJgFhZXJr6jen4g&dib_tag=se&keywords=home%2Bdecor&qid=1783685977&sprefix=%2Caps%2C1878&sr=8-7&th=1&linkCode=ll2&tag=nestywesty-20&linkId=e9a746c0a79ad192840ebb92d751610f&language=en_US&ref_=as_li_ss_tl" target="_blank" rel="noopener">Shop Now →</a>
+    </div>
+  </header>
+
+  <section class="hero" style="padding-bottom:44px;">
+    <div class="hero-content">
+      <div class="kicker fade-up">✦ Nesty Westy Pick</div>
+      <div class="hero-emoji fade-up" style="animation-delay:.05s">🏺</div>
+      <h1 class="hero-title fade-up" style="animation-delay:.1s">Three little vases<br>that made our living room<br>feel <em>curated</em></h1>
+      <p class="hero-sub fade-up" style="animation-delay:.15s">Neutral farmhouse pottery that layers together beautifully, styled or bare.</p>
+    </div>
+  </section>
+
+  <div class="score-card fade-up" style="animation-delay:.2s">
+    <div class="score-top">
+      <span class="score-label">Nesty Westy Score</span>
+      <span class="score-value">8.9 /10</span>
+    </div>
+    <div class="score-bar-track">
+      <div class="score-bar-fill" id="scoreBar"></div>
+    </div>
+    <div class="stats-row">
+      <div class="stat">
+        <div class="stat-value">3</div>
+        <div class="stat-label">Vase Set</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value">4.6★</div>
+        <div class="stat-label">Rating</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value">300+</div>
+        <div class="stat-label">Reviews</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value">Ceramic</div>
+        <div class="stat-label">Material</div>
+      </div>
+    </div>
+  </div>
+
+  <a class="floating-cta" href="https://www.amazon.com/Vintage-Chinoiserie-Decorative-Farmhouse-Bookshelf/dp/B0FFMC44RQ?crid=2BO2PR4DM4RZA&dib=eyJ2IjoiMSJ9.SMeRV3Uz7UOGm0-sfZZCkgwVL676EGihVIlVlulPJyL_7MlHXx1q_cJZULMS-s0GoUmMw0QBWTN27TOsOMgaM9DxpNTdBB3Moqj_43OX_4jNznul9rpS0OW_8Xrk7w91hdrYS2P_ERD43661Wh97Rl5BferToJ-OXSwPQ2F_ww92dMgVkHvnCAT8uVP5M4GdcXPkK-JWeM13cAs5RZuDKjfxczXPEVuzMunvbFvN0bn8QHa23ZkY4jsIEmf2zLMfjPhHC0JLVcbOdS52roUrGsuJ8wUp2PHJ-WTl3uf6veQ.5Wv0zk18fNEA5uJwVU7caKwsCgQ4qJgFhZXJr6jen4g&dib_tag=se&keywords=home%2Bdecor&qid=1783685977&sprefix=%2Caps%2C1878&sr=8-7&th=1&linkCode=ll2&tag=nestywesty-20&linkId=e9a746c0a79ad192840ebb92d751610f&language=en_US&ref_=as_li_ss_tl" target="_blank" rel="noopener">🛒 Buy Now</a>
+
+  <section class="fade-up" style="animation-delay:.25s">
+    <h2 class="product-name">Ceramic Vase Set of 3 — Neutral Farmhouse Decorative Vases</h2>
+    <div class="rating-row">
+      <span class="stars">★★★★★</span>
+      <span class="rating-num">4.6</span>
+      <span class="review-count">(300+ reviews)</span>
+    </div>
+    <a class="cta-btn" href="https://www.amazon.com/Vintage-Chinoiserie-Decorative-Farmhouse-Bookshelf/dp/B0FFMC44RQ?crid=2BO2PR4DM4RZA&dib=eyJ2IjoiMSJ9.SMeRV3Uz7UOGm0-sfZZCkgwVL676EGihVIlVlulPJyL_7MlHXx1q_cJZULMS-s0GoUmMw0QBWTN27TOsOMgaM9DxpNTdBB3Moqj_43OX_4jNznul9rpS0OW_8Xrk7w91hdrYS2P_ERD43661Wh97Rl5BferToJ-OXSwPQ2F_ww92dMgVkHvnCAT8uVP5M4GdcXPkK-JWeM13cAs5RZuDKjfxczXPEVuzMunvbFvN0bn8QHa23ZkY4jsIEmf2zLMfjPhHC0JLVcbOdS52roUrGsuJ8wUp2PHJ-WTl3uf6veQ.5Wv0zk18fNEA5uJwVU7caKwsCgQ4qJgFhZXJr6jen4g&dib_tag=se&keywords=home%2Bdecor&qid=1783685977&sprefix=%2Caps%2C1878&sr=8-7&th=1&linkCode=ll2&tag=nestywesty-20&linkId=e9a746c0a79ad192840ebb92d751610f&language=en_US&ref_=as_li_ss_tl" target="_blank" rel="noopener">See It on <span class="amazon-pill">Amazon</span> →</a>
+  </section>
+
+  <div class="trust-row fade-up" style="animation-delay:.3s">
+    ✅ Free Prime Shipping · 🔄 Easy Returns · 🔒 Secure Checkout
+  </div>
+
+  <section class="fade-up" style="animation-delay:.35s">
+    <div class="section-label">The Story</div>
+    <p class="story-text">These three little vases turned my coffee table into something out of a design blog. I grouped them together on a tray and honestly didn't even add flowers — they look <em>intentional</em> just as they are. It's such an easy way to make a room feel finished.</p>
+  </section>
+
+  <section class="fade-up" style="animation-delay:.4s">
+    <div class="section-label">Why It Works</div>
+    <div class="why-grid">
+      <div class="why-card">
+        <div class="why-emoji">🏺</div>
+        <div class="why-title">Set of 3</div>
+        <div class="why-sub">Graduated sizes for instant, layered styling</div>
+      </div>
+      <div class="why-card">
+        <div class="why-emoji">🎨</div>
+        <div class="why-title">Neutral Palette</div>
+        <div class="why-sub">Rustic farmhouse pottery finish that fits any room</div>
+      </div>
+      <div class="why-card">
+        <div class="why-emoji">💧</div>
+        <div class="why-title">Waterproof Interior</div>
+        <div class="why-sub">Holds fresh, dried, or faux stems with ease</div>
+      </div>
+      <div class="why-card">
+        <div class="why-emoji">🏡</div>
+        <div class="why-title">Anywhere Decor</div>
+        <div class="why-sub">Tables, mantels, bookshelves, or entryways</div>
+      </div>
+    </div>
+    <a class="cta-btn" href="https://www.amazon.com/Vintage-Chinoiserie-Decorative-Farmhouse-Bookshelf/dp/B0FFMC44RQ?crid=2BO2PR4DM4RZA&dib=eyJ2IjoiMSJ9.SMeRV3Uz7UOGm0-sfZZCkgwVL676EGihVIlVlulPJyL_7MlHXx1q_cJZULMS-s0GoUmMw0QBWTN27TOsOMgaM9DxpNTdBB3Moqj_43OX_4jNznul9rpS0OW_8Xrk7w91hdrYS2P_ERD43661Wh97Rl5BferToJ-OXSwPQ2F_ww92dMgVkHvnCAT8uVP5M4GdcXPkK-JWeM13cAs5RZuDKjfxczXPEVuzMunvbFvN0bn8QHa23ZkY4jsIEmf2zLMfjPhHC0JLVcbOdS52roUrGsuJ8wUp2PHJ-WTl3uf6veQ.5Wv0zk18fNEA5uJwVU7caKwsCgQ4qJgFhZXJr6jen4g&dib_tag=se&keywords=home%2Bdecor&qid=1783685977&sprefix=%2Caps%2C1878&sr=8-7&th=1&linkCode=ll2&tag=nestywesty-20&linkId=e9a746c0a79ad192840ebb92d751610f&language=en_US&ref_=as_li_ss_tl" target="_blank" rel="noopener">🛒 Shop This Find on Amazon →</a>
+  </section>
+
+  <section class="fade-up" style="animation-delay:.45s">
+    <div class="pc-grid">
+      <div class="pc-card">
+        <div class="pc-title pros">👍 Pros</div>
+        <ul class="pc-list pros">
+          <li>Three sizes let you build an instant styled vignette</li>
+          <li>Neutral palette blends with almost any color scheme</li>
+          <li>Sturdy ceramic construction feels substantial in hand</li>
+          <li>Looks beautifully finished with or without flowers</li>
+        </ul>
+      </div>
+      <div class="pc-card">
+        <div class="pc-title cons">👎 Cons</div>
+        <ul class="pc-list cons">
+          <li>Smaller vases in the set fit shorter stems only</li>
+          <li>Hand-washing recommended to preserve the glaze</li>
+          <li>Sold only as a full set of three, not individually</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="fade-up" style="animation-delay:.5s">
+    <div class="verdict-box">
+      <div class="quote-mark">"</div>
+      <p class="verdict-text">I've rearranged these three vases more times than I can count and they somehow work in every combination. That's when you know a piece is a keeper.</p>
+      <div class="verdict-sig">— Nesty Westy</div>
+    </div>
+  </section>
+
+  <section class="final-cta-section fade-up" style="animation-delay:.55s">
+    <a class="cta-btn" href="https://www.amazon.com/Vintage-Chinoiserie-Decorative-Farmhouse-Bookshelf/dp/B0FFMC44RQ?crid=2BO2PR4DM4RZA&dib=eyJ2IjoiMSJ9.SMeRV3Uz7UOGm0-sfZZCkgwVL676EGihVIlVlulPJyL_7MlHXx1q_cJZULMS-s0GoUmMw0QBWTN27TOsOMgaM9DxpNTdBB3Moqj_43OX_4jNznul9rpS0OW_8Xrk7w91hdrYS2P_ERD43661Wh97Rl5BferToJ-OXSwPQ2F_ww92dMgVkHvnCAT8uVP5M4GdcXPkK-JWeM13cAs5RZuDKjfxczXPEVuzMunvbFvN0bn8QHa23ZkY4jsIEmf2zLMfjPhHC0JLVcbOdS52roUrGsuJ8wUp2PHJ-WTl3uf6veQ.5Wv0zk18fNEA5uJwVU7caKwsCgQ4qJgFhZXJr6jen4g&dib_tag=se&keywords=home%2Bdecor&qid=1783685977&sprefix=%2Caps%2C1878&sr=8-7&th=1&linkCode=ll2&tag=nestywesty-20&linkId=e9a746c0a79ad192840ebb92d751610f&language=en_US&ref_=as_li_ss_tl" target="_blank" rel="noopener">🛒 Get It on Amazon — You Will Love It →</a>
+  </section>
+
+  <footer>
+    <div class="footer-logo">Nesty <span>Westy</span></div>
+    <p class="footer-tag">Curating the best home decor finds, just for you.</p>
+    <p class="footer-welcome">Found us on Pinterest? Welcome home 🏡</p>
+    <p class="footer-disclaimer">As an Amazon Associate, Nesty Westy earns from qualifying purchases. This helps support our page at no extra cost to you.</p>
+  </footer>
+
+  <script>
+    setTimeout(function(){
+      document.getElementById('scoreBar').style.width = '89%';
+    }, 200);
+  </script>
+
+</body>
+</html>
