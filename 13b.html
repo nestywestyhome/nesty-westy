@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-ETSNVG2MG8"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-ETSNVG2MG8');
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>3D Textured Elephant Wall Art — Nesty Westy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --dark:#1C1F2E;
+    --ivory:#F5F0E8;
+    --offwhite:#EDE7DA;
+    --sage:#7A9E7E;
+    --darksage:#5C8060;
+    --grey:#9A9488;
+    --border:#DDD8CE;
+    --white:#FFFFFF;
+    --red:#C0392B;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    font-family:'Inter', sans-serif;
+    background:var(--ivory);
+    color:var(--dark);
+    display:flex;
+    justify-content:center;
+  }
+  .page{
+    max-width:430px;
+    width:100%;
+    margin:0 auto;
+    background:var(--ivory);
+    position:relative;
+    overflow-x:hidden;
+  }
+  a{text-decoration:none; color:inherit;}
+
+  /* ===== HEADER ===== */
+  header{
+    position:sticky;
+    top:0;
+    z-index:50;
+    background:var(--dark);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:12px 16px;
+  }
+  .logo{
+    font-family:'DM Serif Display', serif;
+    font-size:18px;
+    color:var(--ivory);
+    white-space:nowrap;
+  }
+  .logo span{color:var(--sage);}
+  .header-right{
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .pin-pill{
+    font-size:10px;
+    color:var(--grey);
+    background:rgba(245,240,232,0.06);
+    border:1px solid rgba(154,148,136,0.3);
+    padding:5px 9px;
+    border-radius:20px;
+    white-space:nowrap;
+  }
+  .shop-now-btn{
+    background:var(--sage);
+    color:var(--white);
+    font-size:11px;
+    font-weight:700;
+    padding:7px 12px;
+    border-radius:20px;
+    white-space:nowrap;
+  }
+
+  /* ===== HERO ===== */
+  .hero{
+    position:relative;
+    background:linear-gradient(160deg, #1C1F2E 0%, #252836 100%);
+    padding:36px 18px 40px;
+    overflow:hidden;
+  }
+  .hero::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background-image:repeating-linear-gradient(-45deg, #7A9E7E 0px, #7A9E7E 1px, transparent 1px, transparent 22px);
+    opacity:0.03;
+    pointer-events:none;
+  }
+  .kicker{
+    position:relative;
+    display:inline-block;
+    font-size:10px;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    color:var(--sage);
+    border:1px solid var(--sage);
+    background:rgba(122,158,126,0.08);
+    padding:5px 12px;
+    border-radius:20px;
+    margin-bottom:18px;
+  }
+  .hero-emoji{
+    position:relative;
+    font-size:42px;
+    margin-bottom:14px;
+  }
+  h1{
+    position:relative;
+    font-family:'DM Serif Display', serif;
+    font-size:30px;
+    line-height:1.25;
+    color:var(--ivory);
+    font-weight:400;
+    margin-bottom:12px;
+  }
+  h1 em{
+    font-style:italic;
+    color:var(--sage);
+  }
+  .hero-sub{
+    position:relative;
+    font-size:12px;
+    color:#C9C3B5;
+    max-width:340px;
+  }
+
+  /* ===== SCORE STRIP ===== */
+  .score-card{
+    background:var(--white);
+    margin:-20px 14px 0;
+    border-radius:16px;
+    box-shadow:0 12px 30px rgba(28,31,46,0.14);
+    padding:18px 18px 16px;
+    position:relative;
+    z-index:2;
+  }
+  .score-top{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:10px;
+  }
+  .score-label{
+    font-size:12px;
+    font-weight:600;
+    color:var(--dark);
+  }
+  .score-num{
+    font-family:'DM Serif Display', serif;
+    font-size:20px;
+    color:var(--sage);
+  }
+  .score-bar-track{
+    width:100%;
+    height:6px;
+    background:var(--border);
+    border-radius:10px;
+    overflow:hidden;
+    margin-bottom:16px;
+  }
+  .score-bar-fill{
+    height:100%;
+    width:0%;
+    background:var(--sage);
+    border-radius:10px;
+    transition:width 1.2s cubic-bezier(0.65,0,0.35,1);
+  }
+  .stat-row{
+    display:flex;
+  }
+  .stat-col{
+    flex:1;
+    text-align:center;
+    padding:0 4px;
+    border-left:1px solid var(--border);
+  }
+  .stat-col:first-child{border-left:none;}
+  .stat-val{
+    font-size:13px;
+    font-weight:700;
+    color:var(--dark);
+  }
+  .stat-key{
+    font-size:9px;
+    color:var(--grey);
+    text-transform:uppercase;
+    letter-spacing:0.03em;
+    margin-top:2px;
+  }
+
+  /* ===== FLOATING CTA ===== */
+  .floating-cta{
+    position:fixed;
+    bottom:14px;
+    right:14px;
+    z-index:60;
+    background:var(--sage);
+    color:var(--white);
+    font-weight:700;
+    font-size:13px;
+    padding:12px 18px;
+    border-radius:30px;
+    box-shadow:0 8px 20px rgba(122,158,126,0.5);
+    animation:pulse 1.8s infinite;
+  }
+  @keyframes pulse{
+    0%{transform:scale(1);}
+    50%{transform:scale(1.05);}
+    100%{transform:scale(1);}
+  }
+
+  /* ===== SECTIONS SHARED ===== */
+  section{
+    padding:28px 18px 0;
+  }
+  .fade-up{
+    opacity:0;
+    transform:translateY(14px);
+    animation:fadeUp 0.6s ease forwards;
+  }
+  @keyframes fadeUp{
+    to{opacity:1; transform:translateY(0);}
+  }
+
+  /* ===== PRODUCT NAME ===== */
+  .product-name{
+    font-family:'DM Serif Display', serif;
+    font-size:22px;
+    line-height:1.2;
+    color:var(--dark);
+    margin-bottom:10px;
+  }
+  .rating-row{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    flex-wrap:wrap;
+  }
+  .stars{color:#E0A93A; font-size:14px; letter-spacing:1px;}
+  .rating-num{font-weight:700; font-size:13px; color:var(--dark);}
+  .review-count{font-size:12px; color:var(--grey);}
+
+  /* ===== CTA BUTTON ===== */
+  .cta-btn{
+    display:block;
+    width:100%;
+    background:var(--dark);
+    color:var(--ivory);
+    font-weight:600;
+    font-size:15px;
+    text-align:center;
+    padding:16px 14px;
+    border-radius:12px;
+    margin-top:18px;
+    transition:transform 0.12s ease;
+  }
+  .cta-btn:active{transform:scale(0.97);}
+  .amazon-pill{
+    display:inline-block;
+    background:var(--sage);
+    color:var(--white);
+    font-size:11px;
+    font-weight:700;
+    padding:2px 8px;
+    border-radius:20px;
+    margin-left:2px;
+  }
+
+  /* ===== TRUST ROW ===== */
+  .trust-row{
+    text-align:center;
+    font-size:10px;
+    color:var(--grey);
+    margin-top:16px;
+    line-height:1.6;
+  }
+
+  /* ===== STORY ===== */
+  .section-label{
+    font-size:9px;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:var(--darksage);
+    font-weight:700;
+    margin-bottom:10px;
+  }
+  .story-text{
+    font-size:13px;
+    line-height:1.7;
+    color:#3A3D4A;
+  }
+  .story-text em{
+    font-style:italic;
+    color:var(--darksage);
+  }
+
+  /* ===== WHY IT WORKS ===== */
+  .why-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+    margin-top:14px;
+  }
+  .why-card{
+    background:var(--offwhite);
+    border-radius:10px;
+    padding:14px 12px;
+  }
+  .why-emoji{font-size:20px; margin-bottom:8px;}
+  .why-title{font-size:12px; font-weight:700; color:var(--dark); margin-bottom:3px;}
+  .why-sub{font-size:10px; color:var(--grey); line-height:1.4;}
+
+  /* ===== PROS CONS ===== */
+  .pc-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+    margin-top:14px;
+  }
+  .pc-card{
+    background:var(--offwhite);
+    border-radius:10px;
+    padding:14px 12px;
+  }
+  .pc-title{
+    font-size:12px;
+    font-weight:700;
+    margin-bottom:8px;
+  }
+  .pros-title{color:var(--darksage);}
+  .cons-title{color:var(--red);}
+  .pc-list{list-style:none;}
+  .pc-list li{
+    font-size:11px;
+    color:#54524A;
+    margin-bottom:6px;
+    padding-left:14px;
+    position:relative;
+    line-height:1.4;
+  }
+  .pros-list li::before{
+    content:"+";
+    position:absolute;
+    left:0;
+    color:var(--darksage);
+    font-weight:700;
+  }
+  .cons-list li::before{
+    content:"−";
+    position:absolute;
+    left:0;
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ===== VERDICT ===== */
+  .verdict-box{
+    background:var(--dark);
+    border-radius:16px;
+    padding:22px;
+    margin-top:8px;
+  }
+  .quote-mark{
+    font-family:'DM Serif Display', serif;
+    font-size:44px;
+    color:var(--sage);
+    opacity:0.6;
+    line-height:0.5;
+    margin-bottom:10px;
+    display:block;
+  }
+  .verdict-text{
+    font-family:'DM Serif Display', serif;
+    font-style:italic;
+    font-size:15px;
+    line-height:1.6;
+    color:var(--ivory);
+    margin-bottom:14px;
+  }
+  .verdict-sign{
+    font-size:10px;
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    color:var(--sage);
+  }
+
+  .cta-final-wrap{
+    padding-bottom:80px;
+  }
+
+  /* ===== FOOTER ===== */
+  footer{
+    background:var(--dark);
+    text-align:center;
+    padding:28px 20px;
+    margin-top:8px;
+  }
+  .footer-logo{
+    font-family:'DM Serif Display', serif;
+    font-size:18px;
+    color:var(--ivory);
+    margin-bottom:10px;
+  }
+  .footer-logo span{color:var(--sage);}
+  .footer-tag{
+    font-size:12px;
+    color:#C9C3B5;
+    margin-bottom:6px;
+  }
+  .footer-welcome{
+    font-size:12px;
+    color:var(--sage);
+    margin-bottom:16px;
+  }
+  .footer-disclaimer{
+    font-size:10px;
+    color:var(--grey);
+    line-height:1.5;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- 1. STICKY HEADER -->
+  <header>
+    <div class="logo">Nesty <span>Westy</span></div>
+    <div class="header-right">
+      <div class="pin-pill">📌 Pinterest</div>
+      <a class="shop-now-btn" href="https://www.amazon.com/dp/B0FWCDY2JN?_encoding=UTF8&th=1&linkCode=ll2&tag=nestywesty-20&linkId=5b372b9d4dd4d7d7acff7e5f26de3df3&language=en_US&ref_=as_li_ss_tl" target="_blank" rel="noopener">Shop Now →</a>
+    </div>
+  </header>
+
+  <!-- 2. HERO -->
+  <section class="hero" style="padding-top:36px;">
+    <div class="kicker">✦ Nesty Westy Pick</div>
+    <div class="hero-emoji">🐘</div>
+    <h1>Sculptural, soft, and<br>quietly <em>stealing</em><br>the room</h1>
+    <p class="hero-sub">Textured elephant art that feels more like a keepsake than a print.</p>
+  </section>
+
+  <!-- 3. SCORE STRIP -->
+  <div class="score-card">
+    <div class="score-top">
+      <div class="score-label">Nesty Westy Score</div>
+      <div class="score-num">9.0 /10</div>
+    </div>
+    <div class="score-bar-track">
+      <div class="score-bar-fill" id="scoreBar"></div>
+    </div>
+    <div class="stat-row">
+      <div class="stat-col">
+        <div class="stat-val">24x24"</div>
+        <div class="stat-key">Size</div>
+      </div>
+      <div class="stat-col">
+        <div class="stat-val">4.5★</div>
+        <div class="stat-key">Rating</div>
+      </div>
+      <div class="stat-col">
+        <div class="stat-val">250+</div>
+        <div class="stat-key">Reviews</div>
+      </div>
+      <div class="stat-col">
+        <div class="stat-val">3D</div>
+        <div class="stat-key">Texture</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. FLOATING STICKY CTA -->
+  <a class="floating-cta" href="https://www.amazon.com/dp/B0FWCDY2JN?_encoding=UTF8&th=1&linkCode=ll2&tag=nestywesty-20&linkId=5b372b9d4dd4d7d7acff7e5f26de3df3&language=en_US&ref_=as_li_ss_tl" target="_blank" rel="noopener">🛒 Buy Now</a>
+
+  <!-- 5. PRODUCT NAME + RATING -->
+  <section class="fade-up" style="animation-delay:0.05s;">
+    <div class="product-name">3D Textured Elephant Wall Art, Tree Ring Sandstone Decor, 24x24"</div>
+    <div class="rating-row">
+      <span class="stars">★★★★★</span>
+      <span class="rating-num">4.5</span>
+      <span class="review-count">(250+ ratings)</span>
+    </div>
+  </section>
+
+  <!-- 6. CTA BUTTON #1 -->
+  <section style="padding-top:0;">
+    <a class="cta-btn fade-up" style="animation-delay:0.1s;" href="https://www.amazon.com/dp/B0FWCDY2JN?_encoding=UTF8&th=1&linkCode=ll2&tag=nestywesty-20&linkId=5b372b9d4dd4d7d7acff7e5f26de3df3&language=en_US&ref_=as_li_ss_tl" target="_blank" rel="noopener">
+      See It on <span class="amazon-pill">Amazon</span> →
+    </a>
+    <div class="trust-row fade-up" style="animation-delay:0.15s;">✅ Free Prime Shipping · 🔄 Easy Returns · 🔒 Secure Checkout</div>
+  </section>
+
+  <!-- 8. THE STORY -->
+  <section class="fade-up" style="animation-delay:0.2s;">
+    <div class="section-label">The Story</div>
+    <p class="story-text">We hung this above the console table expecting a simple print — instead it's the piece people walk up to and touch. The sandstone texture catches the light differently throughout the day, and the tree-ring elephant design feels <em>warm</em> in a way flat canvas prints never quite manage. It's become the first thing guests ask about.</p>
+  </section>
+
+  <!-- 9. WHY IT WORKS -->
+  <section class="fade-up" style="animation-delay:0.25s;">
+    <div class="section-label">Why It Works</div>
+    <div class="why-grid">
+      <div class="why-card">
+        <div class="why-emoji">🗿</div>
+        <div class="why-title">Sculptural Texture</div>
+        <div class="why-sub">Layered sandstone gives real depth, not flat print</div>
+      </div>
+      <div class="why-card">
+        <div class="why-emoji">🌳</div>
+        <div class="why-title">Tree Ring Design</div>
+        <div class="why-sub">Wood-grain elephant motif, warm and organic</div>
+      </div>
+      <div class="why-card">
+        <div class="why-emoji">🎨</div>
+        <div class="why-title">Neutral Palette</div>
+        <div class="why-sub">Creamy beige and brown tones fit any style</div>
+      </div>
+      <div class="why-card">
+        <div class="why-emoji">🖼️</div>
+        <div class="why-title">Ready to Hang</div>
+        <div class="why-sub">24x24" square, no extra framing needed</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10. CTA BUTTON #2 -->
+  <section style="padding-top:26px;">
+    <a class="cta-btn fade-up" style="animation-delay:0.05s;" href="https://www.amazon.com/dp/B0FWCDY2JN?_encoding=UTF8&th=1&linkCode=ll2&tag=nestywesty-20&linkId=5b372b9d4dd4d7d7acff7e5f26de3df3&language=en_US&ref_=as_li_ss_tl" target="_blank" rel="noopener">🛒 Shop This Find on <span class="amazon-pill">Amazon</span> →</a>
+  </section>
+
+  <!-- 11. PROS & CONS -->
+  <section class="fade-up" style="animation-delay:0.1s;">
+    <div class="section-label">Pros & Cons</div>
+    <div class="pc-grid">
+      <div class="pc-card">
+        <div class="pc-title pros-title">👍 Pros</div>
+        <ul class="pc-list pros-list">
+          <li>Real sculptural texture, not just a flat print</li>
+          <li>Neutral tones blend with modern or boho decor</li>
+          <li>Makes a statement without feeling loud</li>
+          <li>Ready to hang, no extra framing needed</li>
+        </ul>
+      </div>
+      <div class="pc-card">
+        <div class="pc-title cons-title">👎 Cons</div>
+        <ul class="pc-list cons-list">
+          <li>Sandstone texture is delicate, hang with care</li>
+          <li>Only available in one size and shape</li>
+          <li>Neutral tones may feel subtle for bold spaces</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 12. VERDICT -->
+  <section class="fade-up" style="animation-delay:0.15s;">
+    <div class="verdict-box">
+      <span class="quote-mark">"</span>
+      <p class="verdict-text">It's the wall piece that feels handmade even from across the room — soft, warm, and the kind of detail people notice before they know why.</p>
+      <div class="verdict-sign">— Nesty Westy</div>
+    </div>
+  </section>
+
+  <!-- 13. CTA BUTTON #3 -->
+  <section class="cta-final-wrap">
+    <a class="cta-btn fade-up" style="animation-delay:0.05s;" href="https://www.amazon.com/dp/B0FWCDY2JN?_encoding=UTF8&th=1&linkCode=ll2&tag=nestywesty-20&linkId=5b372b9d4dd4d7d7acff7e5f26de3df3&language=en_US&ref_=as_li_ss_tl" target="_blank" rel="noopener">🛒 Get It on Amazon — You Will Love It →</a>
+  </section>
+
+  <!-- 14. FOOTER -->
+  <footer>
+    <div class="footer-logo">Nesty <span>Westy</span></div>
+    <div class="footer-tag">Curating the best home decor finds, just for you.</div>
+    <div class="footer-welcome">Found us on Pinterest? Welcome home 🏡</div>
+    <div class="footer-disclaimer">As an Amazon Associate, Nesty Westy earns from qualifying purchases. This page contains affiliate links.</div>
+  </footer>
+
+</div>
+
+<script>
+  setTimeout(function(){
+    document.getElementById('scoreBar').style.width = '90%';
+  }, 200);
+</script>
+</body>
+</html>
