@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-ETSNVG2MG8"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-ETSNVG2MG8');
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nesty Westy — Pastel Purple LED Candle Trio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --dark:#1C1F2E;
+    --darker:#252836;
+    --ivory:#F5F0E8;
+    --warm:#EDE7DA;
+    --sage:#7A9E7E;
+    --sage-dark:#5C8060;
+    --grey:#9A9488;
+    --border:#DDD8CE;
+    --white:#FFFFFF;
+    --red:#C0392B;
+  }
+
+  *{box-sizing:border-box; margin:0; padding:0;}
+
+  body{
+    font-family:'Inter', sans-serif;
+    background:var(--warm);
+    display:flex;
+    justify-content:center;
+    color:var(--dark);
+  }
+
+  .page{
+    max-width:430px;
+    width:100%;
+    margin:0 auto;
+    background:var(--ivory);
+    position:relative;
+    overflow-x:hidden;
+  }
+
+  /* ===== ANIMATIONS ===== */
+  @keyframes fadeUp{
+    from{opacity:0; transform:translateY(14px);}
+    to{opacity:1; transform:translateY(0);}
+  }
+  .fade-up{
+    opacity:0;
+    animation:fadeUp 0.6s ease forwards;
+  }
+  @keyframes pulseCta{
+    0%{transform:scale(1);}
+    50%{transform:scale(1.05);}
+    100%{transform:scale(1);}
+  }
+
+  /* ===== 1. STICKY HEADER ===== */
+  header{
+    position:sticky;
+    top:0;
+    z-index:50;
+    background:var(--dark);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:12px 16px;
+  }
+  .logo{
+    font-family:'DM Serif Display', serif;
+    font-size:18px;
+    color:var(--ivory);
+  }
+  .logo span{color:var(--sage);}
+  .header-right{
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .pin-pill{
+    font-size:10px;
+    color:var(--grey);
+    background:rgba(255,255,255,0.06);
+    padding:5px 9px;
+    border-radius:999px;
+    white-space:nowrap;
+  }
+  .shop-now-btn{
+    background:var(--sage);
+    color:var(--white);
+    font-size:11px;
+    font-weight:700;
+    padding:7px 12px;
+    border-radius:999px;
+    text-decoration:none;
+    white-space:nowrap;
+  }
+
+  /* ===== 2. HERO ===== */
+  .hero{
+    position:relative;
+    background:linear-gradient(160deg, #1C1F2E 0%, #252836 100%);
+    padding:34px 20px 44px;
+    overflow:hidden;
+  }
+  .hero::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:repeating-linear-gradient(
+      -45deg,
+      rgba(122,158,126,0.03) 0px,
+      rgba(122,158,126,0.03) 2px,
+      transparent 2px,
+      transparent 14px
+    );
+    pointer-events:none;
+  }
+  .hero-content{position:relative; z-index:1;}
+  .kicker{
+    display:inline-block;
+    font-size:10px;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:var(--sage);
+    border:1px solid var(--sage);
+    background:rgba(122,158,126,0.08);
+    padding:5px 12px;
+    border-radius:999px;
+    margin-bottom:18px;
+  }
+  .hero-emoji{
+    font-size:42px;
+    display:block;
+    margin-bottom:14px;
+  }
+  h1{
+    font-family:'DM Serif Display', serif;
+    font-size:30px;
+    line-height:1.28;
+    color:var(--ivory);
+    font-weight:400;
+    margin-bottom:12px;
+  }
+  h1 em{
+    font-style:italic;
+    color:var(--sage);
+  }
+  .hero-sub{
+    font-size:12px;
+    color:#C9C4B8;
+    line-height:1.6;
+    max-width:320px;
+  }
+
+  /* ===== 3. SCORE STRIP ===== */
+  .score-card{
+    background:var(--white);
+    margin:-20px 14px 0;
+    border-radius:16px;
+    box-shadow:0 10px 30px rgba(28,31,46,0.14);
+    padding:18px 18px 16px;
+    position:relative;
+    z-index:2;
+  }
+  .score-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    margin-bottom:10px;
+  }
+  .score-label{
+    font-size:11px;
+    font-weight:600;
+    color:var(--grey);
+    text-transform:uppercase;
+    letter-spacing:0.04em;
+  }
+  .score-number{
+    font-family:'DM Serif Display', serif;
+    font-size:22px;
+    color:var(--sage-dark);
+  }
+  .score-bar-track{
+    width:100%;
+    height:6px;
+    background:var(--border);
+    border-radius:999px;
+    overflow:hidden;
+    margin-bottom:16px;
+  }
+  .score-bar-fill{
+    height:100%;
+    width:0%;
+    background:var(--sage);
+    border-radius:999px;
+    transition:width 1.2s cubic-bezier(0.65,0,0.35,1);
+  }
+  .stat-row{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+  }
+  .stat-col{
+    text-align:center;
+    padding:0 4px;
+    border-left:1px solid var(--border);
+  }
+  .stat-col:first-child{border-left:none;}
+  .stat-value{
+    font-size:13px;
+    font-weight:700;
+    color:var(--dark);
+    display:block;
+    margin-bottom:2px;
+  }
+  .stat-label{
+    font-size:9px;
+    color:var(--grey);
+    text-transform:uppercase;
+    letter-spacing:0.03em;
+  }
+
+  /* ===== 4. FLOATING STICKY CTA ===== */
+  .floating-cta{
+    position:fixed;
+    bottom:14px;
+    right:14px;
+    background:var(--sage);
+    color:var(--white);
+    font-size:13px;
+    font-weight:700;
+    padding:13px 20px;
+    border-radius:999px;
+    text-decoration:none;
+    box-shadow:0 8px 22px rgba(122,158,126,0.55);
+    z-index:60;
+    animation:pulseCta 1.8s infinite;
+  }
+
+  /* ===== SECTION SPACING ===== */
+  .section{
+    padding:26px 18px;
+  }
+
+  /* ===== 5. PRODUCT NAME + RATING ===== */
+  .product-name{
+    font-family:'DM Serif Display', serif;
+    font-size:22px;
+    line-height:1.2;
+    color:var(--dark);
+    margin-bottom:10px;
+    font-weight:400;
+  }
+  .rating-row{
+    display:flex;
+    align-items:center;
+    gap:7px;
+  }
+  .stars{color:#E0A83E; font-size:14px; letter-spacing:1px;}
+  .rating-num{font-weight:700; font-size:13px; color:var(--dark);}
+  .review-count{font-size:12px; color:var(--grey);}
+
+  /* ===== 6/10/13 CTA BUTTONS ===== */
+  .cta-btn{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    width:100%;
+    background:var(--dark);
+    color:var(--ivory);
+    font-family:'Inter', sans-serif;
+    font-weight:600;
+    font-size:15px;
+    padding:15px 16px;
+    border-radius:12px;
+    text-decoration:none;
+    border:none;
+    cursor:pointer;
+    transition:transform 0.15s ease;
+  }
+  .cta-btn:active{transform:scale(0.97);}
+  .amazon-pill{
+    background:var(--sage);
+    color:var(--white);
+    font-size:10px;
+    font-weight:700;
+    padding:3px 8px;
+    border-radius:999px;
+  }
+
+  /* ===== 7. TRUST ROW ===== */
+  .trust-row{
+    text-align:center;
+    font-size:10px;
+    color:var(--grey);
+    padding:16px 18px 4px;
+  }
+
+  /* ===== 8. STORY ===== */
+  .section-label{
+    font-size:9px;
+    text-transform:uppercase;
+    letter-spacing:0.1em;
+    color:var(--sage-dark);
+    font-weight:700;
+    margin-bottom:10px;
+  }
+  .story-text{
+    font-size:13px;
+    line-height:1.7;
+    color:#3D3D3D;
+  }
+  .story-text em{
+    font-style:italic;
+    color:var(--sage-dark);
+  }
+
+  /* ===== 9. WHY IT WORKS ===== */
+  .why-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+  }
+  .why-card{
+    background:var(--warm);
+    border-radius:10px;
+    padding:14px 12px;
+  }
+  .why-emoji{font-size:20px; display:block; margin-bottom:8px;}
+  .why-title{font-size:12px; font-weight:700; color:var(--dark); margin-bottom:3px;}
+  .why-sub{font-size:10px; color:var(--grey); line-height:1.4;}
+
+  /* ===== 11. PROS & CONS ===== */
+  .pc-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+  }
+  .pc-card{
+    background:var(--warm);
+    border-radius:10px;
+    padding:14px 12px;
+  }
+  .pc-title{
+    font-size:12px;
+    font-weight:700;
+    margin-bottom:8px;
+  }
+  .pros .pc-title{color:var(--sage-dark);}
+  .cons .pc-title{color:var(--red);}
+  .pc-list{
+    list-style:none;
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+  }
+  .pc-list li{
+    font-size:11px;
+    color:#5A5A52;
+    line-height:1.4;
+    padding-left:14px;
+    position:relative;
+  }
+  .pros .pc-list li::before{
+    content:"+";
+    position:absolute;
+    left:0;
+    color:var(--sage-dark);
+    font-weight:700;
+  }
+  .cons .pc-list li::before{
+    content:"−";
+    position:absolute;
+    left:0;
+    color:var(--red);
+    font-weight:700;
+  }
+
+  /* ===== 12. VERDICT ===== */
+  .verdict-box{
+    background:var(--dark);
+    border-radius:16px;
+    padding:26px 22px 22px;
+    position:relative;
+  }
+  .verdict-quote{
+    font-family:'DM Serif Display', serif;
+    font-size:44px;
+    color:var(--sage);
+    opacity:0.6;
+    line-height:0.6;
+    display:block;
+    margin-bottom:6px;
+  }
+  .verdict-text{
+    font-family:'DM Serif Display', serif;
+    font-style:italic;
+    font-size:15px;
+    color:var(--ivory);
+    line-height:1.55;
+    margin-bottom:16px;
+  }
+  .verdict-sign{
+    font-size:10px;
+    color:var(--sage);
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+  }
+
+  /* ===== 13. LAST CTA WRAPPER ===== */
+  .last-cta-section{
+    padding:26px 18px 80px;
+  }
+
+  /* ===== 14. FOOTER ===== */
+  footer{
+    background:var(--dark);
+    text-align:center;
+    padding:28px 20px;
+  }
+  .footer-logo{
+    font-family:'DM Serif Display', serif;
+    font-size:18px;
+    color:var(--ivory);
+    margin-bottom:10px;
+  }
+  .footer-logo span{color:var(--sage);}
+  .footer-tag{
+    font-size:12px;
+    color:#C9C4B8;
+    margin-bottom:6px;
+  }
+  .footer-welcome{
+    font-size:12px;
+    color:var(--sage);
+    margin-bottom:16px;
+  }
+  .footer-disclaimer{
+    font-size:10px;
+    color:var(--grey);
+    line-height:1.5;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- 1. STICKY HEADER -->
+  <header>
+    <div class="logo">Nesty <span>Westy</span></div>
+    <div class="header-right">
+      <span class="pin-pill">📌 Pinterest</span>
+      <a class="shop-now-btn" href="https://www.amazon.com/dp/B0D213PZ2V?_encoding=UTF8&th=1&linkCode=ll2&tag=nestywesty-20&linkId=7e7ce0e17d86a73d7b2a0e0cf539866f&language=en_US&ref_=as_li_ss_tl" target="_blank" rel="noopener">Shop Now →</a>
+    </div>
+  </header>
+
+  <!-- 2. HERO -->
+  <section class="hero">
+    <div class="hero-content">
+      <span class="kicker">✦ Nesty Westy Pick</span>
+      <span class="hero-emoji">🕯️</span>
+      <h1>Soft purple glow,<br>indoors or out —<br>always <em>safe</em>.</h1>
+      <p class="hero-sub">A dreamy pastel flicker that fits the porch tonight and the mantel tomorrow.</p>
+    </div>
+  </section>
+
+  <!-- 3. SCORE STRIP -->
+  <div class="score-card">
+    <div class="score-top">
+      <span class="score-label">Nesty Westy Score</span>
+      <span class="score-number" id="scoreNum">9.1 /10</span>
+    </div>
+    <div class="score-bar-track">
+      <div class="score-bar-fill" id="scoreBar"></div>
+    </div>
+    <div class="stat-row">
+      <div class="stat-col">
+        <span class="stat-value">Set of 3</span>
+        <span class="stat-label">Sizes</span>
+      </div>
+      <div class="stat-col">
+        <span class="stat-value">4.6★</span>
+        <span class="stat-label">Rating</span>
+      </div>
+      <div class="stat-col">
+        <span class="stat-value">In/Out</span>
+        <span class="stat-label">Use</span>
+      </div>
+      <div class="stat-col">
+        <span class="stat-value">150 Hrs</span>
+        <span class="stat-label">Runtime</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. FLOATING STICKY CTA -->
+  <a class="floating-cta" href="https://www.amazon.com/dp/B0D213PZ2V?_encoding=UTF8&th=1&linkCode=ll2&tag=nestywesty-20&linkId=7e7ce0e17d86a73d7b2a0e0cf539866f&language=en_US&ref_=as_li_ss_tl" target="_blank" rel="noopener">🛒 Buy Now</a>
+
+  <!-- 5. PRODUCT NAME + RATING -->
+  <div class="section fade-up" style="padding-bottom:14px;">
+    <h2 class="product-name">Matchless Candle Co. by Luminara — Pastel Purple LED Trio</h2>
+    <div class="rating-row">
+      <span class="stars">★★★★★</span>
+      <span class="rating-num">4.6</span>
+      <span class="review-count">(indoor/outdoor safe)</span>
+    </div>
+  </div>
+
+  <!-- 6. CTA BUTTON #1 -->
+  <div class="section fade-up" style="padding-top:0; padding-bottom:0;">
+    <a class="cta-btn" href="https://www.amazon.com/dp/B0D213PZ2V?_encoding=UTF8&th=1&linkCode=ll2&tag=nestywesty-20&linkId=7e7ce0e17d86a73d7b2a0e0cf539866f&language=en_US&ref_=as_li_ss_tl" target="_blank" rel="noopener">
+      See It on <span class="amazon-pill">Amazon</span> →
+    </a>
+  </div>
+
+  <!-- 7. TRUST ROW -->
+  <div class="trust-row fade-up">
+    ✅ Free Prime Shipping · 🔄 Easy Returns · 🔒 Secure Checkout
+  </div>
+
+  <!-- 8. THE STORY -->
+  <div class="section fade-up">
+    <div class="section-label">The Story</div>
+    <p class="story-text">There's something so pretty about a soft pastel purple glow that feels a little unexpected — not your typical ivory candle, but still cozy in the same way. Real hand-poured wax, a flicker that moves on its own, and a shell rated safe for both indoor and outdoor use means this trio can move from your patio table to your <em>living room mantel</em> without missing a beat. No flame, no worry, just glow.</p>
+  </div>
+
+  <!-- 9. WHY IT WORKS -->
+  <div class="section fade-up" style="padding-top:0;">
+    <div class="why-grid">
+      <div class="why-card">
+        <span class="why-emoji">💜</span>
+        <div class="why-title">Pastel Purple Wax</div>
+        <div class="why-sub">Soft, unexpected color for any room</div>
+      </div>
+      <div class="why-card">
+        <span class="why-emoji">🏡</span>
+        <div class="why-title">Indoor/Outdoor Safe</div>
+        <div class="why-sub">Moves from porch to mantel with ease</div>
+      </div>
+      <div class="why-card">
+        <span class="why-emoji">✨</span>
+        <div class="why-title">Moving Flame</div>
+        <div class="why-sub">Flickers like the real thing, no soot</div>
+      </div>
+      <div class="why-card">
+        <span class="why-emoji">⏰</span>
+        <div class="why-title">Built-In Timer</div>
+        <div class="why-sub">5 hrs on, auto-off for 19</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 10. CTA BUTTON #2 -->
+  <div class="section fade-up" style="padding-top:0; padding-bottom:0;">
+    <a class="cta-btn" href="https://www.amazon.com/dp/B0D213PZ2V?_encoding=UTF8&th=1&linkCode=ll2&tag=nestywesty-20&linkId=7e7ce0e17d86a73d7b2a0e0cf539866f&language=en_US&ref_=as_li_ss_tl" target="_blank" rel="noopener">
+      🛒 Shop This Find on Amazon →
+    </a>
+  </div>
+
+  <!-- 11. PROS & CONS -->
+  <div class="section fade-up">
+    <div class="pc-grid">
+      <div class="pc-card pros">
+        <div class="pc-title">👍 Pros</div>
+        <ul class="pc-list">
+          <li>Unique pastel purple shade stands out</li>
+          <li>Safe to use indoors and outdoors alike</li>
+          <li>Graduated heights look styled, not matchy</li>
+          <li>No smoke, no soot, no fire risk</li>
+        </ul>
+      </div>
+      <div class="pc-card cons">
+        <div class="pc-title">👎 Cons</div>
+        <ul class="pc-list">
+          <li>Batteries not included</li>
+          <li>No real wax scent</li>
+          <li>Color may fade slightly with prolonged sun exposure</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- 12. VERDICT -->
+  <div class="section fade-up">
+    <div class="verdict-box">
+      <span class="verdict-quote">"</span>
+      <p class="verdict-text">This is the set we'd reach for when we want a little unexpected color in the glow. Pretty enough for the porch, cozy enough for the couch.</p>
+      <div class="verdict-sign">— Nesty Westy</div>
+    </div>
+  </div>
+
+  <!-- 13. CTA BUTTON #3 -->
+  <div class="last-cta-section fade-up">
+    <a class="cta-btn" href="https://www.amazon.com/dp/B0D213PZ2V?_encoding=UTF8&th=1&linkCode=ll2&tag=nestywesty-20&linkId=7e7ce0e17d86a73d7b2a0e0cf539866f&language=en_US&ref_=as_li_ss_tl" target="_blank" rel="noopener">
+      🛒 Get It on Amazon — You Will Love It →
+    </a>
+  </div>
+
+  <!-- 14. FOOTER -->
+  <footer>
+    <div class="footer-logo">Nesty <span>Westy</span></div>
+    <div class="footer-tag">Curating the best home decor finds, just for you.</div>
+    <div class="footer-welcome">Found us on Pinterest? Welcome home 🏡</div>
+    <div class="footer-disclaimer">As an Amazon Associate, Nesty Westy earns from qualifying purchases. This page contains affiliate links.</div>
+  </footer>
+
+</div>
+
+<script>
+  // Stagger fade-up animations
+  document.querySelectorAll('.fade-up').forEach((el, i) => {
+    el.style.animationDelay = (i * 0.05) + 's';
+  });
+
+  // Animate score bar on load
+  window.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+      document.getElementById('scoreBar').style.width = '91%';
+    }, 200);
+  });
+</script>
+
+</body>
+</html>
