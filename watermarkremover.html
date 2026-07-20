@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Nesty Westy – AI Pin Generator (Standalone)</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<script src="https://js.puter.com/v2/"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@upscalerjs/default-model@latest/dist/umd/index.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/upscaler@latest/dist/browser/umd/upscaler.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#1C1F2E;--ivory:#F5F0E8;--warm:#EDE7DA;
+  --sage:#7A9E7E;--sage2:#5C8060;--muted:#9A9488;
+  --border:#2a2a2a;--card:#161616;--bg:#0f0f0f;
+}
+body{background:var(--bg);color:var(--ivory);font-family:'Inter',sans-serif;padding:22px 16px 60px;max-width:480px;margin:0 auto;}
+.logo{font-family:'DM Serif Display',serif;font-size:24px;color:var(--ivory);}
+.logo em{color:var(--sage);font-style:normal;}
+.sub{font-size:11px;color:#555;letter-spacing:.08em;text-transform:uppercase;margin-bottom:18px;}
+
+.upload-zone{
+  background:var(--card);border:2px dashed #333;border-radius:16px;
+  padding:32px 20px;text-align:center;cursor:pointer;transition:border-color .2s,background .2s;
+  margin-bottom:14px;min-height:180px;display:flex;align-items:center;justify-content:center;flex-direction:column;
+}
+.upload-zone.drag{border-color:var(--sage);background:#181f18;}
+#upload-placeholder{color:#555;font-size:14px;line-height:1.6;}
+#upload-placeholder span{display:block;font-size:32px;margin-bottom:8px;}
+#preview-img{max-width:100%;max-height:220px;border-radius:10px;display:none;object-fit:contain;}
+
+.toggle-row{
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--card);border:1px solid var(--border);border-radius:10px;
+  padding:12px 14px;margin-bottom:14px;
+}
+.toggle-label{font-size:12px;color:var(--ivory);}
+.toggle-sub{font-size:10px;color:#555;margin-top:2px;}
+.switch{position:relative;width:42px;height:24px;flex-shrink:0;margin-left:12px;}
+.switch input{opacity:0;width:0;height:0;}
+.slider{position:absolute;cursor:pointer;inset:0;background:#333;border-radius:24px;transition:.2s;}
+.slider:before{position:absolute;content:"";height:18px;width:18px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.2s;}
+input:checked + .slider{background:var(--sage);}
+input:checked + .slider:before{transform:translateX(18px);}
+
+.primary-btn{
+  width:100%;background:var(--sage);color:#fff;border:none;border-radius:12px;
+  font-size:15px;font-weight:700;padding:15px;cursor:pointer;margin-bottom:12px;
+  transition:opacity .15s,transform .1s;
+}
+.primary-btn:active{transform:scale(.98);}
+.primary-btn:disabled{opacity:.35;cursor:not-allowed;}
+
+.status{font-size:12px;color:var(--sage);text-align:center;min-height:18px;margin-bottom:10px;font-weight:600;}
+.status.error{color:#C0392B;}
+
+#result-section{display:none;}
+.canvas-wrap{
+  background:var(--card);border-radius:16px;padding:14px;margin-bottom:14px;
+  display:flex;justify-content:center;
+}
+#pin-canvas{width:100%;max-width:320px;height:auto;border-radius:10px;display:block;}
+
+label{font-size:10px;color:var(--sage);font-weight:700;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:6px;}
+#hook-input{
+  width:100%;background:var(--card);border:1px solid var(--border);border-radius:10px;
+  color:var(--ivory);font-size:14px;padding:12px;font-family:'Inter',sans-serif;margin-bottom:12px;
+}
+
+.btn-row{display:flex;gap:8px;}
+.btn-row button{flex:1;font-size:13px;font-weight:700;padding:12px;border-radius:10px;border:none;cursor:pointer;}
+#redraw-btn{background:var(--ink);color:var(--sage);border:1px solid var(--border);}
+#download-btn{background:var(--sage);color:#fff;}
+.btn-row button:active{opacity:.85;}
+
+.spin{display:inline-block;width:12px;height:12px;border:2px solid rgba(122,158,126,.3);border-top-color:var(--sage);border-radius:50%;animation:sp .7s linear infinite;margin-right:6px;vertical-align:middle;}
+@keyframes sp{to{transform:rotate(360deg);}}
+
+.note{margin-top:20px;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px 16px;font-size:11px;color:#555;line-height:1.8;}
+.note strong{color:var(--sage);}
+
+/* PASSWORD GATE */
+#lock-screen{
+  position:fixed;inset:0;background:var(--bg);z-index:9999;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:24px;
+}
+#lock-screen .logo{margin-bottom:6px;}
+.lock-sub{font-size:11px;color:#444;letter-spacing:.08em;text-transform:uppercase;margin-bottom:28px;}
+.lock-icon{font-size:36px;margin-bottom:16px;}
+#lock-input{
+  width:100%;max-width:280px;background:var(--card);border:1px solid var(--border);border-radius:10px;
+  color:var(--ivory);font-size:15px;padding:13px 14px;text-align:center;margin-bottom:12px;
+  font-family:'Inter',sans-serif;letter-spacing:.05em;
+}
+#lock-btn{
+  width:100%;max-width:280px;background:var(--sage);color:#fff;border:none;border-radius:10px;
+  font-size:14px;font-weight:700;padding:13px;cursor:pointer;
+}
+#lock-btn:active{opacity:.85;}
+#lock-error{font-size:12px;color:#C0392B;margin-top:10px;min-height:16px;font-weight:600;}
+#app-content{display:none;}
+</style>
+</head>
+<body>
+
+<div id="lock-screen">
+  <div class="lock-icon">🔒</div>
+  <div class="logo">Nesty <em>Westy</em></div>
+  <div class="lock-sub">Private Tool — Enter Password</div>
+  <input type="password" id="lock-input" placeholder="Password" autocomplete="off"/>
+  <button id="lock-btn">Unlock</button>
+  <div id="lock-error"></div>
+</div>
+
+<div id="app-content">
+
+<div class="logo">Nesty <em>Westy</em></div>
+<div class="sub">AI Pin Generator — Standalone, Works Anywhere</div>
+
+<div class="upload-zone" id="upload-zone">
+  <input type="file" id="file-input" accept="image/*" hidden/>
+  <div id="upload-placeholder">
+    <span>📷</span>
+    Tap to upload product image<br/>or drag & drop here
+  </div>
+  <img id="preview-img"/>
+</div>
+
+<label>Your Hook Text</label>
+<input type="text" id="hook-input" placeholder="Type your hook here, e.g. Zero water. Endless blooms."/>
+
+<div class="toggle-row">
+  <div>
+    <div class="toggle-label">🧹 AI Watermark Removal</div>
+    <div class="toggle-sub">Real AI inpaint + enhance — may ask free sign-in</div>
+  </div>
+  <label class="switch">
+    <input type="checkbox" id="watermark-toggle"/>
+    <span class="slider"></span>
+  </label>
+</div>
+
+<div class="toggle-row">
+  <div>
+    <div class="toggle-label">✨ AI Photo Enhancement</div>
+    <div class="toggle-sub">Free, on-device — no sign-in, no cost</div>
+  </div>
+  <label class="switch">
+    <input type="checkbox" id="ai-enhance-toggle" checked/>
+    <span class="slider"></span>
+  </label>
+</div>
+
+<div class="btn-row" style="margin-bottom:14px;">
+  <button id="usage-btn" style="background:var(--card);color:var(--muted);border:1px solid var(--border);font-size:12px;font-weight:600;padding:10px;border-radius:10px;">📊 Check Usage</button>
+  <button id="switch-account-btn" style="background:var(--card);color:var(--muted);border:1px solid var(--border);font-size:12px;font-weight:600;padding:10px;border-radius:10px;">🔄 Switch Account</button>
+</div>
+<div class="status" id="account-status" style="margin-bottom:6px;"></div>
+
+<button class="primary-btn" id="generate-btn" disabled>✨ Generate Pin</button>
+<div class="status" id="status"></div>
+
+<div id="result-section">
+  <div class="canvas-wrap">
+    <canvas id="pin-canvas" width="1000" height="1500"></canvas>
+  </div>
+  <div class="btn-row">
+    <button id="redraw-btn">🔄 Update Pin</button>
+    <button id="download-btn">⬇ Download PNG</button>
+  </div>
+</div>
+
+<div class="note">
+  <strong>How it works:</strong> Upload your product photo and type your own hook text. Turn on "AI Watermark Removal" if the photo came from Gemini (real AI inpainting removes the logo and boosts quality). Photo enhancement runs free and on-device for smaller photos. The pin fills the full frame with your photo, no blur, hook in a compact brush-stroke bar at the bottom that adapts its color to your photo, no branding added. If any step fails, the tool automatically falls back so you always get a finished pin.
+</div>
+
+</div>
+
+<script>
+// ===== PASSWORD GATE — checked fresh on every page load, never remembered =====
+const CORRECT_PASSWORD = 'Password@401';
+const lockScreen = document.getElementById('lock-screen');
+const appContent = document.getElementById('app-content');
+const lockInput = document.getElementById('lock-input');
+const lockBtn = document.getElementById('lock-btn');
+const lockError = document.getElementById('lock-error');
+
+function tryUnlock() {
+  if (lockInput.value === CORRECT_PASSWORD) {
+    lockScreen.style.display = 'none';
+    appContent.style.display = 'block';
+  } else {
+    lockError.innerText = '❌ Wrong password — try again';
+    lockInput.value = '';
+    lockInput.focus();
+  }
+}
+
+lockBtn.addEventListener('click', tryUnlock);
+lockInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') tryUnlock(); });
+lockInput.focus();
+// ===== END PASSWORD GATE =====
+
+let uploadedImage = null;
+let base64Full = null;   // full data URL
+let base64Raw = null;    // base64 without prefix
+let mediaType = null;
+let enhancedImage = null;
+let rawFile = null;      // original File object, for reliable Puter fs upload
+
+const fileInput = document.getElementById('file-input');
+const uploadZone = document.getElementById('upload-zone');
+const previewImg = document.getElementById('preview-img');
+const placeholder = document.getElementById('upload-placeholder');
+const generateBtn = document.getElementById('generate-btn');
+const statusEl = document.getElementById('status');
+const resultSection = document.getElementById('result-section');
+const canvas = document.getElementById('pin-canvas');
+const ctx = canvas.getContext('2d');
+const hookInput = document.getElementById('hook-input');
+const aiEnhanceToggle = document.getElementById('ai-enhance-toggle');
+
+uploadZone.addEventListener('click', () => fileInput.click());
+fileInput.addEventListener('change', handleFile);
+
+uploadZone.addEventListener('dragover', (e) => { e.preventDefault(); uploadZone.classList.add('drag'); });
+uploadZone.addEventListener('dragleave', () => { uploadZone.classList.remove('drag'); });
+uploadZone.addEventListener('drop', (e) => {
+  e.preventDefault();
+  uploadZone.classList.remove('drag');
+  if (e.dataTransfer.files.length) {
+    handleFile({ target: { files: e.dataTransfer.files } });
+  }
+});
+
+function handleFile(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  if (!file.type.startsWith('image/')) {
+    statusEl.className = 'status error';
+    statusEl.innerText = '⚠️ Please upload an image file';
+    return;
+  }
+  if (file.size > 15 * 1024 * 1024) {
+    statusEl.className = 'status error';
+    statusEl.innerText = '⚠️ Image too large — please use one under 15MB';
+    return;
+  }
+
+  mediaType = file.type || 'image/jpeg';
+  rawFile = file;
+  const reader = new FileReader();
+  reader.onerror = function () {
+    statusEl.className = 'status error';
+    statusEl.innerText = '⚠️ Could not read that file — try another image';
+  };
+  reader.onload = function (ev) {
+    base64Full = ev.target.result;
+    base64Raw = base64Full.split(',')[1];
+    previewImg.src = base64Full;
+    previewImg.style.display = 'block';
+    placeholder.style.display = 'none';
+    generateBtn.disabled = false;
+    statusEl.innerText = '';
+    resultSection.style.display = 'none';
+    enhancedImage = null;
+
+    const img = new Image();
+    img.onload = () => {
+      uploadedImage = img;
+      if (img.width < 400 || img.height < 400) {
+        statusEl.className = '';
+        statusEl.style.color = '#f0c040';
+        statusEl.innerText = '⚠️ Low resolution photo — pin may look slightly soft. A bigger photo works better.';
+      }
+    };
+    img.onerror = () => {
+      statusEl.className = 'status error';
+      statusEl.innerText = '⚠️ Could not load that image — try another one';
+      generateBtn.disabled = true;
+    };
+    img.src = base64Full;
+  };
+  reader.readAsDataURL(file);
+}
+
+generateBtn.addEventListener('click', generatePin);
+document.getElementById('redraw-btn').addEventListener('click', () => drawCanvas(hookInput.value));
+document.getElementById('download-btn').addEventListener('click', downloadPin);
+
+const accountStatusEl = document.getElementById('account-status');
+const usageBtn = document.getElementById('usage-btn');
+const switchAccountBtn = document.getElementById('switch-account-btn');
+
+usageBtn.addEventListener('click', async () => {
+  accountStatusEl.className = 'status';
+  accountStatusEl.innerHTML = '<span class="spin"></span>Checking...';
+  try {
+    if (!puter.auth.isSignedIn()) {
+      accountStatusEl.innerText = 'Not signed in yet — sign in first by generating a pin';
+      return;
+    }
+    const user = await puter.auth.getUser();
+    let usageText = 'Signed in as: ' + (user.username || 'your account');
+    try {
+      const usage = await puter.auth.getMonthlyUsage();
+      usageText += ' — usage data available in your Puter dashboard';
+    } catch (e) {
+      // getMonthlyUsage may not always be available, that's fine
+    }
+    accountStatusEl.innerText = usageText;
+  } catch (err) {
+    accountStatusEl.className = 'status error';
+    accountStatusEl.innerText = 'Could not check status — try again';
+  }
+});
+
+switchAccountBtn.addEventListener('click', async () => {
+  try {
+    puter.auth.signOut();
+    accountStatusEl.className = 'status';
+    accountStatusEl.innerText = '✅ Signed out. Tap "Generate Pin" to sign in with a different account.';
+  } catch (err) {
+    accountStatusEl.className = 'status error';
+    accountStatusEl.innerText = 'Could not switch — try again';
+  }
+});
+
+async function generatePin() {
+  if (!base64Full || !uploadedImage) {
+    statusEl.className = 'status error';
+    statusEl.innerText = '⚠️ Please upload an image first';
+    return;
+  }
+  const hookText = hookInput.value.trim(); // optional — empty is fine
+  generateBtn.disabled = true;
+
+  // Step 1: AI watermark removal (optional — only if toggle is on)
+  statusEl.className = 'status';
+  const watermarkToggle = document.getElementById('watermark-toggle');
+  if (watermarkToggle && watermarkToggle.checked) {
+    statusEl.innerHTML = '<span class="spin"></span>Removing watermark with AI...';
+    const cleanedImage = await removeWatermarkCorner(uploadedImage);
+    uploadedImage = cleanedImage;
+  }
+
+  // Step 2: Optionally enhance image (free, on-device — falls back to original on any failure)
+  let sourceImage = uploadedImage;
+  if (aiEnhanceToggle.checked) {
+    statusEl.innerHTML = '<span class="spin"></span>Enhancing photo...';
+    const enhanced = await enhanceImage(uploadedImage);
+    if (enhanced) {
+      sourceImage = enhanced;
+      enhancedImage = enhanced;
+    }
+  }
+
+  // Step 3: Build the pin (pure canvas — cannot fail from network issues)
+  statusEl.innerHTML = '<span class="spin"></span>Building your pin...';
+  try {
+    await drawCanvas(hookText, sourceImage);
+    resultSection.style.display = 'block';
+    statusEl.innerText = '✅ Pin ready! Download below.';
+    setTimeout(() => { statusEl.innerText = ''; }, 3500);
+  } catch (err) {
+    console.error('Canvas draw failed:', err);
+    statusEl.className = 'status error';
+    statusEl.innerText = '⚠️ Could not build the pin — try uploading the image again';
+  }
+
+  generateBtn.disabled = false;
+}
+
+
+
+// Real AI watermark removal + quality enhancement via Nano Banana (Puter).
+// Falls back to free on-device UpscalerJS if Puter is unavailable for any reason.
+async function removeWatermarkCorner(imgElement) {
+  try {
+    const off = document.createElement('canvas');
+    off.width = imgElement.width;
+    off.height = imgElement.height;
+    const octx = off.getContext('2d');
+    octx.drawImage(imgElement, 0, 0);
+    const dataUrl = off.toDataURL('image/png');
+    const rawBase64 = dataUrl.split(',')[1];
+
+    const result = await puter.ai.txt2img(
+      "This photo has a small logo or watermark in the bottom-right corner. Remove it completely and fill that area naturally to seamlessly match the surrounding background — it should look like it was never there. Do not change anything else about the photo: keep the exact same product, scene, composition and angle. Also enhance the overall photo quality: improve sharpness, clarity, lighting and detail, like a professional high-end photo edit.",
+      {
+        model: "google/gemini-2.5-flash-image",
+        input_image: rawBase64,
+        input_image_mime_type: 'image/png'
+      }
+    );
+    if (!result) throw new Error('No result from Nano Banana');
+    return await new Promise((resolve) => {
+      if (result.complete && result.naturalWidth > 0) {
+        resolve(result);
+      } else {
+        result.onload = () => resolve(result);
+        result.onerror = () => resolve(imgElement);
+        setTimeout(() => resolve(imgElement), 25000);
+      }
+    });
+  } catch (err) {
+    console.warn('AI watermark removal failed, keeping original photo:', err);
+    return imgElement; // safe fallback — tool still works, just skips this step
+  }
+}
+
+async function enhanceImage(imgElement) {
+  try {
+    // Skip AI upscaling for already-decent resolution photos —
+    // no visible benefit, and saves time/memory on slower devices
+    if (imgElement.width >= 700 && imgElement.height >= 700) {
+      return null;
+    }
+    if (typeof Upscaler === 'undefined') {
+      console.warn('UpscalerJS not loaded, using original photo');
+      return null;
+    }
+    if (!window._nwUpscaler) {
+      window._nwUpscaler = new Upscaler({ model: window.DefaultUpscalerJSModel });
+    }
+
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error('Upscale timed out')), 20000)
+    );
+    const upscaledDataUrl = await Promise.race([
+      window._nwUpscaler.upscale(imgElement),
+      timeoutPromise
+    ]);
+
+    return await new Promise((resolve) => {
+      const result = new Image();
+      result.onload = () => resolve(result);
+      result.onerror = () => resolve(null);
+      result.src = upscaledDataUrl;
+    });
+  } catch (err) {
+    console.warn('AI upscale failed, using original photo:', err);
+    return null;
+  }
+}
+
+function wrapText(context, text, maxWidth) {
+  // Safety cap — even if AI returns something unexpectedly long, never overflow the canvas
+  let safeText = (text || '').trim();
+  if (safeText.length > 70) safeText = safeText.slice(0, 70).trim() + '…';
+
+  const words = safeText.split(' ');
+  let lines = [];
+  let line = '';
+  for (let n = 0; n < words.length; n++) {
+    const testLine = line + words[n] + ' ';
+    const testWidth = context.measureText(testLine).width;
+    if (testWidth > maxWidth && n > 0) {
+      lines.push(line.trim());
+      line = words[n] + ' ';
+    } else {
+      line = testLine;
+    }
+  }
+  lines.push(line.trim());
+  // Hard cap at 3 lines regardless of text length
+  if (lines.length > 3) lines = lines.slice(0, 3);
+  return lines;
+}
+
+async function drawCanvas(hookText, sourceImg) {
+  const img = sourceImg || enhancedImage || uploadedImage;
+  if (!img) return;
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+
+  const hasHook = hookText && hookText.trim().length > 0;
+
+  // Measure hook text first so we know exactly how tall the bottom bar needs to be.
+  // If there's no hook, skip the bar entirely and let the photo fill the whole frame.
+  let lines = [], barHeight = 0, barPaddingTop = 26;
+  if (hasHook) {
+    ctx.font = '700 40px Inter, sans-serif';
+    const maxTextWidth = W - 80;
+    lines = wrapText(ctx, hookText, maxTextWidth);
+    const lineHeight = 50;
+    const barPaddingBottom = 26;
+    barHeight = lines.length * lineHeight + barPaddingTop + barPaddingBottom;
+  }
+
+  const imageZoneHeight = H - barHeight;
+
+  // IMAGE ZONE — product photo fills completely, edge-to-edge, no border, no blur
+  const coverScale = Math.max(W / img.width, imageZoneHeight / img.height);
+  const fw = img.width * coverScale, fh = img.height * coverScale;
+  const fx = (W - fw) / 2, fy = (imageZoneHeight - fh) / 2;
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(0, 0, W, imageZoneHeight);
+  ctx.clip();
+  ctx.filter = 'contrast(1.05) saturate(1.1) brightness(1.02)';
+  ctx.drawImage(img, fx, fy, fw, fh);
+  ctx.restore();
+
+  if (!hasHook) return; // no hook — clean full-frame image only, nothing more to draw
+
+  // Sample an average color from the bottom strip of the image itself,
+  // so the hook bar's color adapts to each photo instead of being fixed
+  const sampleCanvas = document.createElement('canvas');
+  sampleCanvas.width = 20; sampleCanvas.height = 4;
+  const sctx = sampleCanvas.getContext('2d');
+  sctx.drawImage(canvas, 0, Math.max(0, imageZoneHeight - 30), W, 30, 0, 0, 20, 4);
+  const pixels = sctx.getImageData(0, 0, 20, 4).data;
+  let r = 0, g = 0, b = 0, count = 0;
+  for (let p = 0; p < pixels.length; p += 4) { r += pixels[p]; g += pixels[p+1]; b += pixels[p+2]; count++; }
+  r = Math.floor((r / count) * 0.32);
+  g = Math.floor((g / count) * 0.32);
+  b = Math.floor((b / count) * 0.30 + 10);
+  const barColor = 'rgb(' + r + ',' + g + ',' + b + ')';
+
+  const lineHeight = 50;
+
+  // BOTTOM ZONE — brush-stroke style wavy top edge, color adapted from the photo
+  // Wave shape is randomized slightly each time so pins don't look identical
+  const seed = Math.random();
+  const wOff1 = -6 + seed * 18;
+  const wOff2 = 22 - seed * 14;
+  const wOff3 = 8 + seed * 10;
+  ctx.save();
+  ctx.beginPath();
+  ctx.moveTo(0, imageZoneHeight + 14);
+  ctx.bezierCurveTo(W * 0.12, imageZoneHeight + wOff1, W * 0.22, imageZoneHeight + wOff2, W * 0.38, imageZoneHeight + wOff3);
+  ctx.bezierCurveTo(W * 0.55, imageZoneHeight - 10 + seed * 6, W * 0.7, imageZoneHeight + 18 - seed * 8, W * 0.86, imageZoneHeight + 2);
+  ctx.bezierCurveTo(W * 0.94, imageZoneHeight - 6, W * 0.98, imageZoneHeight + 10, W, imageZoneHeight + 6);
+  ctx.lineTo(W, H);
+  ctx.lineTo(0, H);
+  ctx.closePath();
+  ctx.fillStyle = barColor;
+  ctx.fill();
+  ctx.restore();
+
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'alphabetic';
+  ctx.fillStyle = '#F5F0E8';
+  lines.forEach((line, i) => {
+    ctx.fillText(line, 40, imageZoneHeight + barPaddingTop + (i + 1) * lineHeight - 4);
+  });
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+}
+
+function downloadPin() {
+  canvas.toBlob(function (blob) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'nesty-westy-pin-' + Date.now() + '.png';
+    a.click();
+    URL.revokeObjectURL(url);
+  }, 'image/png');
+}
+</script>
+</body>
+</html>
