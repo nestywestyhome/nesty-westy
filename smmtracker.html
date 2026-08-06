@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>150-Day Freelance Sprint</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #faf7f2;
+    color: #171717;
+    padding-bottom: 60px;
+  }
+  .mono { font-family: 'SF Mono', 'Courier New', monospace; }
+  .wrap { max-width: 460px; margin: 0 auto; padding: 0 20px; }
+  /* ===== HEADER ===== */
+  .hero {
+    background: #0a0a0a;
+    color: #faf7f2;
+    padding: 28px 20px 22px;
+    border-radius: 0 0 28px 28px;
+  }
+  .hero-inner { max-width: 460px; margin: 0 auto; }
+  .hero-top { display:flex; align-items:center; justify-content:space-between; }
+  .eyebrow { font-size:10px; letter-spacing:.3em; color:#dc2626; font-weight:700; }
+  .hero-title { font-size:18px; font-weight:700; margin-top:2px; }
+  .streak-pill { display:flex; align-items:center; gap:5px; background:rgba(255,255,255,.06); border-radius:999px; padding:6px 12px; font-size:12px; font-weight:700; }
+  .streak-pill.on span:first-child { color:#ef4444; }
+  .ring-row { display:flex; align-items:center; gap:18px; margin-top:18px; }
+  .ring-wrap { position:relative; width:92px; height:92px; flex-shrink:0; }
+  .ring-wrap svg { transform: rotate(-90deg); }
+  .ring-center { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+  .ring-day { font-size:24px; font-weight:700; }
+  .ring-of { font-size:9px; color:#a3a3a3; letter-spacing:.1em; }
+  .stage-tag { font-size:10px; letter-spacing:.2em; color:#a3a3a3; font-family:'SF Mono',monospace; }
+  .today-title { font-size:15px; font-weight:700; margin-top:4px; line-height:1.3; }
+  .today-sub { font-size:12px; color:#a3a3a3; margin-top:4px; }
+  .date-banner {
+    margin-top:14px; background:rgba(220,38,38,.12); border:1px solid rgba(220,38,38,.35);
+    border-radius:10px; padding:8px 12px; font-size:12px; font-weight:700; color:#fca5a5;
+    text-align:center; letter-spacing:.03em;
+  }
+  .tabs { display:flex; gap:4px; background:rgba(255,255,255,.06); border-radius:12px; padding:4px; margin-top:18px; }
+  .tab-btn { flex:1; display:flex; align-items:center; justify-content:center; gap:6px; padding:9px 0; border-radius:8px; font-size:12px; font-weight:600; background:none; border:none; color:#a3a3a3; cursor:pointer; }
+  .tab-btn.active { background:#dc2626; color:#fff; }
+  /* ===== BODY SECTIONS ===== */
+  .section { display:none; }
+  .section.active { display:block; }
+  .card { background:#fff; border:1px solid #e5e0d8; border-radius:16px; padding:14px 16px; }
+  .label { font-size:10px; letter-spacing:.2em; color:#a3a3a3; font-weight:700; margin-bottom:8px; font-family:'SF Mono',monospace; }
+  .warn-banner {
+    margin-top:18px; width:100%; display:flex; align-items:flex-start; gap:10px;
+    background:#fef3c7; border:1px solid #fcd34d; border-radius:12px; padding:12px 14px;
+    font-size:11px; line-height:1.5; color:#78350f; cursor:pointer; text-align:left; border-style:solid;
+  }
+  /* work window slider */
+  .ww-slider { position:relative; background:#fff; border:1px solid #e5e0d8; border-radius:999px; padding:4px; display:flex; margin-top:18px; }
+  .ww-thumb { position:absolute; top:4px; bottom:4px; width:calc(50% - 4px); background:#0a0a0a; border-radius:999px; transition: transform .3s ease; }
+  .ww-btn { position:relative; z-index:1; flex:1; display:flex; align-items:center; justify-content:center; gap:6px; padding:10px 0; border:none; background:none; cursor:pointer; font-size:12px; font-weight:600; color:#737373; }
+  .ww-btn.active { color:#fff; }
+  .ww-range { text-align:center; font-size:11px; color:#a3a3a3; margin-top:6px; font-family:'SF Mono',monospace; }
+  /* step nodes */
+  .steps { display:flex; align-items:center; margin-top:12px; }
+  .step-node-wrap { display:flex; align-items:center; flex:1; }
+  .step-node-wrap:last-child { flex: 0 0 auto; }
+  .step-node { width:36px; height:36px; border-radius:999px; display:flex; align-items:center; justify-content:center; border:2px solid #e5e0d8; background:#fff; flex-shrink:0; cursor:pointer; transition: all .3s ease; }
+  .step-node.done { background:#dc2626; border-color:#dc2626; }
+  .step-line { flex:1; height:2px; background:#e5e0d8; margin:0 4px; border-radius:2px; transition: background .5s; }
+  .step-line.done { background:#dc2626; }
+  .shift-list { margin-top:16px; display:flex; flex-direction:column; gap:8px; }
+  .shift-card { text-align:left; border-radius:16px; padding:12px 16px; border:1px solid #e5e0d8; background:#fff; cursor:pointer; transition: all .3s ease; }
+  .shift-card.done { background:#0a0a0a; border-color:#0a0a0a; }
+  .shift-row { display:flex; justify-content:space-between; align-items:center; }
+  .shift-num { font-size:10px; font-family:'SF Mono',monospace; letter-spacing:.1em; font-weight:700; color:#a3a3a3; display:flex; align-items:center; gap:4px; }
+  .shift-card.done .shift-num { color:#ef4444; }
+  .shift-time { font-size:10px; font-family:'SF Mono',monospace; color:#a3a3a3; }
+  .shift-title { font-size:14px; font-weight:700; margin-top:3px; }
+  .shift-card.done .shift-title { color:#fff; }
+  .shift-desc { font-size:12px; color:#737373; margin-top:2px; line-height:1.4; }
+  .shift-card.done .shift-desc { color:#a3a3a3; }
+  .break-row { display:flex; align-items:center; gap:6px; padding:6px 0 6px 4px; color:#a3a3a3; font-size:10px; font-family:'SF Mono',monospace; }
+  .break-line { flex:1; border-top:1px dashed #e5e0d8; }
+  .cta-row { margin-top:20px; width:100%; display:flex; align-items:center; justify-content:space-between; background:#fff; border:1px solid #e5e0d8; border-radius:16px; padding:14px 16px; cursor:pointer; }
+  .ledger-section { margin-bottom:4px; }
+  .ledger-grid { display:grid; grid-template-columns:repeat(10, 1fr); gap:5px; margin-top:8px; background:#fff; border:1px solid #e5e0d8; border-radius:14px; padding:12px; }
+  .ledger-chip { aspect-ratio:1; border-radius:4px; display:flex; align-items:center; justify-content:center; font-size:8px; font-family:'SF Mono',monospace; font-weight:700; background:#f6f3ec; color:#c7c2b6; border:1px solid #e5e0d8; }
+  .ledger-chip.done { background:#dc2626; color:#fff; border-color:#dc2626; }
+  .ledger-chip.partial { background:#fecaca; color:#991b1b; border-color:#fca5a5; }
+  .ledger-chip.missed { background:#fef3c7; color:#92400e; border-color:#fcd34d; }
+  .ledger-chip.today { background:#0a0a0a; color:#fff; border-color:#0a0a0a; box-shadow:0 0 0 3px rgba(220,38,38,.35); }
+  .ledger-chip.future { background:#faf9f6; color:#d4cfc2; }
+  .ledger-legend { display:flex; flex-wrap:wrap; gap:10px; margin-top:8px; font-size:9px; font-family:'SF Mono',monospace; color:#a3a3a3; }
+  .ledger-legend span { display:flex; align-items:center; gap:4px; }
+  .ledger-legend .lg { width:8px; height:8px; border-radius:2px; display:inline-block; }
+  .ledger-legend .lg.done { background:#dc2626; }
+  .ledger-legend .lg.today { background:#0a0a0a; }
+  .ledger-legend .lg.missed { background:#fcd34d; }
+  .ledger-legend .lg.future { background:#e5e0d8; }
+  .cta-left { display:flex; align-items:center; gap:10px; font-weight:600; font-size:14px; }
+  .cta-right { font-size:10px; font-family:'SF Mono',monospace; color:#a3a3a3; }
+  /* not started */
+  .empty-state { margin-top:30px; background:#fff; border:1px solid #e5e0d8; border-radius:20px; padding:40px 24px; text-align:center; }
+  .empty-icon { width:56px; height:56px; margin:0 auto 16px; border-radius:999px; background:#fef2f2; display:flex; align-items:center; justify-content:center; font-size:24px; }
+  .empty-title { font-size:17px; font-weight:700; }
+  .empty-sub { font-size:13px; color:#737373; margin-top:6px; }
+  .empty-btn { margin-top:18px; display:inline-flex; align-items:center; gap:6px; background:#0a0a0a; color:#fff; font-size:12px; font-weight:600; padding:10px 16px; border-radius:10px; border:none; cursor:pointer; }
+  /* timeline */
+  .timeline { position:relative; padding-left:20px; margin-top:18px; }
+  .timeline::before { content:''; position:absolute; left:7px; top:4px; bottom:4px; width:2px; background:#e5e0d8; }
+  .stage-block { margin-bottom:26px; }
+  .stage-head { position:relative; display:flex; gap:8px; margin-bottom:10px; }
+  .stage-dot { position:absolute; left:-20px; width:14px; height:14px; border-radius:999px; background:#0a0a0a; border:4px solid #faf7f2; }
+  .stage-name { font-size:14px; font-weight:700; }
+  .stage-range { font-size:10px; font-family:'SF Mono',monospace; color:#a3a3a3; }
+  .phase-label { font-size:9px; font-family:'SF Mono',monospace; letter-spacing:.1em; color:#dc2626; font-weight:700; margin:10px 0 6px; }
+  .block-row { display:flex; align-items:center; gap:10px; border:1px solid #e5e0d8; background:#fff; border-radius:12px; padding:9px 12px; margin-bottom:6px; }
+  .block-row.current { border-color:#fca5a5; background:#fef2f2; }
+  .block-days { width:44px; text-align:center; font-size:10px; font-family:'SF Mono',monospace; font-weight:700; color:#a3a3a3; flex-shrink:0; }
+  .block-row.current .block-days { color:#dc2626; }
+  .block-name { flex:1; font-size:12px; font-weight:600; }
+  .block-icon { font-size:12px; flex-shrink:0; }
+  /* results */
+  .stat-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:18px; }
+  .stat-card { background:#fff; border:1px solid #e5e0d8; border-radius:16px; padding:14px 16px; }
+  .stat-label { font-size:9px; font-family:'SF Mono',monospace; letter-spacing:.1em; color:#a3a3a3; }
+  .stat-val { font-size:22px; font-weight:700; margin-top:2px; }
+  .stat-val small { font-size:13px; color:#a3a3a3; font-weight:400; }
+  .stage-progress { margin-top:16px; display:flex; flex-direction:column; gap:10px; }
+  .sp-row { background:#fff; border:1px solid #e5e0d8; border-radius:12px; padding:12px 16px; }
+  .sp-top { display:flex; justify-content:space-between; font-size:12px; font-weight:600; margin-bottom:6px; }
+  .sp-top span:last-child { font-family:'SF Mono',monospace; color:#a3a3a3; font-weight:400; }
+  .sp-bar-bg { height:6px; background:#f0ede6; border-radius:99px; overflow:hidden; }
+  .sp-bar-fill { height:100%; background:#dc2626; border-radius:99px; transition: width .6s ease; }
+  .backup-block { margin-top:20px; background:#0a0a0a; border-radius:18px; padding:16px; }
+  .backup-title { font-size:10px; letter-spacing:.2em; color:#ef4444; font-weight:700; margin-bottom:8px; font-family:'SF Mono',monospace; }
+  .backup-text { font-size:11px; color:#a3a3a3; line-height:1.5; margin-bottom:12px; }
+  .btn { width:100%; padding:11px 0; border-radius:12px; border:none; font-size:12px; font-weight:700; cursor:pointer; }
+  .btn-red { background:#dc2626; color:#fff; }
+  .btn-ghost { background:rgba(255,255,255,.08); color:#fff; }
+  textarea { width:100%; background:#171717; color:#d4d4d4; font-size:10px; font-family:monospace; border:1px solid rgba(255,255,255,.1); border-radius:12px; padding:10px; resize:none; margin-top:10px; }
+  .msg { font-size:11px; margin-top:8px; }
+  .msg.ok { color:#4ade80; } .msg.bad { color:#f87171; }
+  .export-row { display:flex; gap:8px; margin-top:16px; }
+  .export-btn { flex:1; display:flex; align-items:center; justify-content:center; gap:6px; background:#fff; border:1px solid #e5e0d8; border-radius:12px; padding:11px 0; font-size:12px; font-weight:600; cursor:pointer; }
+  .spinner { width:28px; height:28px; border:3px solid #dc2626; border-top-color:transparent; border-radius:50%; animation:spin .8s linear infinite; margin:80px auto; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  .lock-badge { font-size:9px; }
+</style>
+</head>
+<body>
+
+<div id="loading" style="min-height:100vh; display:flex; align-items:center; justify-content:center;">
+  <div class="spinner"></div>
+</div>
+
+<div id="app" style="display:none;">
+  <div class="hero">
+    <div class="hero-inner">
+      <div class="hero-top">
+        <div>
+          <div class="eyebrow">GLOBAL FOOD BRAND</div>
+          <div class="hero-title">150-Day Sprint</div>
+        </div>
+        <div class="streak-pill" id="streakPill">🔥 <span id="streakVal">0</span></div>
+      </div>
+      <div class="ring-row">
+        <div class="ring-wrap">
+          <svg width="92" height="92" viewBox="0 0 90 90">
+            <circle cx="45" cy="45" r="40" fill="none" stroke="#292524" stroke-width="7"/>
+            <circle id="ringFill" cx="45" cy="45" r="40" fill="none" stroke="#dc2626" stroke-width="7" stroke-linecap="round" stroke-dasharray="251.2" stroke-dashoffset="251.2" style="transition: stroke-dashoffset .6s ease;"/>
+          </svg>
+          <div class="ring-center">
+            <div class="ring-day" id="ringDay">—</div>
+            <div class="ring-of">/ 150</div>
+          </div>
+        </div>
+        <div style="flex:1; min-width:0;">
+          <div class="stage-tag" id="stageTag">STAGE 1</div>
+          <div class="today-title" id="todayTitle">Loading…</div>
+          <div class="today-sub" id="todaySub"></div>
+        </div>
+      </div>
+      <div id="dateBanner" class="date-banner"></div>
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="today" onclick="switchTab('today')">🌬️ Today</button>
+        <button class="tab-btn" data-tab="schedule" onclick="switchTab('schedule')">📅 Timeline</button>
+        <button class="tab-btn" data-tab="results" onclick="switchTab('results')">📊 Results</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap">
+
+    <!-- TODAY -->
+    <div class="section active" id="section-today">
+      <button class="warn-banner" onclick="switchTab('results')">
+        <span>⚠️</span>
+        <span><strong>Back up your data regularly.</strong> Tap here to copy a backup code you can restore from on any device — recommended weekly.</span>
+      </button>
+      <div id="todayBody"></div>
+    </div>
+
+    <!-- TIMELINE -->
+    <div class="section" id="section-schedule">
+      <div class="timeline" id="timelineBody"></div>
+    </div>
+
+    <!-- RESULTS -->
+    <div class="section" id="section-results">
+      <div class="stat-grid">
+        <div class="stat-card"><div class="stat-label">DAYS COMPLETE</div><div class="stat-val" id="statDays">0<small>/150</small></div></div>
+        <div class="stat-card"><div class="stat-label">SHIFTS DONE</div><div class="stat-val" id="statShifts">0<small>/450</small></div></div>
+      </div>
+      <div class="stage-progress" id="stageProgress"></div>
+
+      <div class="backup-block">
+        <div class="backup-title">MANUAL BACKUP · YOUR SAFETY NET</div>
+        <p class="backup-text">Even though this saves automatically now, copy this code occasionally and store it somewhere safe (Notes app, email to yourself) — a good habit for anything important.</p>
+        <button class="btn btn-red" onclick="copyBackupCode()" id="copyBackupBtn">📋 Copy backup code</button>
+        <textarea id="backupTextArea" readonly style="display:none;" onfocus="this.select()"></textarea>
+        <div style="border-top:1px solid rgba(255,255,255,.1); margin-top:12px; padding-top:12px;">
+          <textarea id="restoreInput" placeholder="Paste backup code to restore…" style="height:60px;"></textarea>
+          <button class="btn btn-ghost" style="margin-top:8px;" onclick="restoreBackupCode()">Restore</button>
+          <div id="restoreMsg"></div>
+        </div>
+      </div>
+
+      <div class="label" style="margin-top:20px;">EXPORT REPORT</div>
+      <div class="export-row">
+        <button class="export-btn" onclick="downloadReport()">⬇️ Download</button>
+        <button class="export-btn" onclick="copyReport()" id="copyReportBtn">📄 Copy text</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ============ CONFIG ============
+const START_DATE = "2026-08-06"; // LOCKED
+
+// ============ STAGE 1 CURRICULUM (Days 1-50) ============
+const DAILY_STAGE1 = [
+  { block: "Design Foundations", title: "Layout & Composition", shifts: [
+    { t: "Study Hierarchy & Spacing", d: "Learn how contrast, size and whitespace guide the eye." },
+    { t: "Design 3 Practice Posts", d: "Apply hierarchy principles — no template copying." },
+    { t: "Self-Review", d: "Check each post against the hierarchy checklist." }]},
+  { block: "Design Foundations", title: "Typography & Colour Theory", shifts: [
+    { t: "Study Pairing Rules", d: "Learn font pairing & colour theory basics." },
+    { t: "Design 5 Test Posts", d: "Try a different palette/font pairing each time." },
+    { t: "Compare Results", d: "Which combo felt strongest, and why." }]},
+  { block: "Design Foundations", title: "Templates & Brand Kits", shifts: [
+    { t: "Learn Brand Kits", d: "Understand how Canva Brand Kits save colours & fonts." },
+    { t: "Build 3 Dummy Kits", d: "Practice kits for random niches." },
+    { t: "Design a Carousel", d: "Use a dummy kit to design one carousel post." }]},
+  { block: "Design Foundations", title: "Practice Day", shifts: [
+    { t: "Design From Scratch", d: "One post, no reference, apply everything so far." },
+    { t: "5-Slide Carousel", d: "Build a carousel without copying any template." },
+    { t: "Review Speed & Quality", d: "Note where time was lost and why." }]},
+  { block: "Copywriting", title: "AIDA Framework", shifts: [
+    { t: "Study AIDA", d: "Learn Attention-Interest-Desire-Action with 5 real examples." },
+    { t: "Write 5 Captions", d: "Apply AIDA structure to 5 practice captions." },
+    { t: "Check Against AIDA", d: "Review each caption for weak stages." }]},
+  { block: "Copywriting", title: "PAS Framework", shifts: [
+    { t: "Study PAS", d: "Learn Problem-Agitate-Solution, compare with AIDA." },
+    { t: "Write 5 Captions", d: "Apply PAS across 5 different random niches." },
+    { t: "Compare Frameworks", d: "Note when AIDA vs PAS works better." }]},
+  { block: "Copywriting", title: "Hook Writing", shifts: [
+    { t: "Study Hook Psychology", d: "Learn Hook-Story-Offer & 3-second retention rules." },
+    { t: "Write 10 Hooks", d: "Same topic, 10 different opening lines." },
+    { t: "Rate Your Hooks", d: "Pick your 3 strongest and explain why." }]},
+  { block: "Copywriting", title: "Practice Day", shifts: [
+    { t: "Write 10 Captions", d: "Mix frameworks, use a checklist as you go." },
+    { t: "Build a Checklist", d: "Create your own copywriting quality checklist." },
+    { t: "Rewrite Weakest 3", d: "Improve the 3 weakest captions using the checklist." }]},
+  { block: "Reel Editing", title: "CapCut Basics", shifts: [
+    { t: "Explore Interface", d: "Learn timeline, trim, split & layers." },
+    { t: "Practice Cuts", d: "Cut practice footage into clean clips." },
+    { t: "Build a 15s Sequence", d: "Arrange 3 clips into one short edit." }]},
+  { block: "Reel Editing", title: "Transitions & Pacing", shifts: [
+    { t: "Study Transitions", d: "Learn 5 trending transition styles." },
+    { t: "Apply 5 Transitions", d: "Add them into your practice edit." },
+    { t: "Review Pacing", d: "Decide where cuts should be fast vs slow." }]},
+  { block: "Reel Editing", title: "Text & Captions (Manual)", shifts: [
+    { t: "Learn Manual Captions", d: "Auto-captions sit behind CapCut Pro now — practice manual timing." },
+    { t: "Add Captions to Reel", d: "Sync manual captions on a practice reel." },
+    { t: "Explore Free Alternatives", d: "Check CapCut Web free-tier caption options." }]},
+  { block: "Reel Editing", title: "Audio & Trending Sounds", shifts: [
+    { t: "Study Audio Impact", d: "Learn how sound choice affects reach." },
+    { t: "Add Audio & Duck Volume", d: "Balance music vs voice in a practice edit." },
+    { t: "Log 5 Trending Sounds", d: "Note formats relevant to food content." }]},
+  { block: "Reel Editing", title: "Video Hooks", shifts: [
+    { t: "Study Visual Hooks", d: "Learn 3-second retention techniques (movement, text, contrast)." },
+    { t: "Edit 3 Hook Openings", d: "Same footage, three different opening styles." },
+    { t: "Compare Hooks", d: "Decide which grabs attention fastest." }]},
+  { block: "Reel Editing", title: "Practice Day", shifts: [
+    { t: "Edit Reel #1", d: "Start to finish, from stock footage." },
+    { t: "Edit Reel #2", d: "Try a different style or pacing." },
+    { t: "Compare Both Edits", d: "Note what worked better and why." }]},
+  { block: "Strategy Theory", title: "How Algorithms Work", shifts: [
+    { t: "Research Core Metrics", d: "Study reach vs impressions vs engagement rate." },
+    { t: "Study Saves & Shares", d: "Understand why they outrank likes for reach." },
+    { t: "Write Algorithm Notes", d: "Summarise which signals content should send." }]},
+  { block: "Strategy Theory", title: "Content Pillars Theory", shifts: [
+    { t: "Study Pillars Concept", d: "Learn why pillars balance variety with consistency." },
+    { t: "Reverse-Engineer 3 Brands", d: "Map their content pillars from their feed." },
+    { t: "Draft a Pillar Framework", d: "Write a generic pillar structure (no brand yet)." }]},
+  { block: "Strategy Theory", title: "Posting Cadence & Formats", shifts: [
+    { t: "Research Formats", d: "Learn when to use feed post vs reel vs story." },
+    { t: "Study Frequency Benchmarks", d: "Find optimal posting frequency data." },
+    { t: "Draft a Cadence Plan", d: "Plan a posting rhythm for the future brand." }]},
+  { block: "Strategy Theory", title: "Competitor Teardown", shifts: [
+    { t: "Shortlist 5 Brands", d: "Pick 5 global food brands to study." },
+    { t: "Analyse Their Content", d: "Map pillars, hook style & format mix." },
+    { t: "Build Comparison Doc", d: "Note what's common and what's unique." }]},
+  { block: "Certification", title: "Mock Sprint", shifts: [
+    { t: "Design 3 Posts", d: "From a random food-content prompt." },
+    { t: "Write 3 Captions", d: "Apply frameworks to the same prompt." },
+    { t: "Edit 1 Reel", d: "Same prompt, track your total sprint time." }]},
+  { block: "Certification", title: "Audit & Fix", shifts: [
+    { t: "Review Days 1-19", d: "List 3 specific things to improve." },
+    { t: "Redo Weakest Piece", d: "Rebuild your weakest post/caption/reel." },
+    { t: "Self-Check", d: "Honestly: ready to start building the brand?" }]},
+  { block: "Brand Identity", title: "Niche Selection", shifts: [
+    { t: "Pick a Sub-Niche", d: "Choose a specific food angle, with reasoning." },
+    { t: "Brainstorm Angles", d: "3 possible content angles inside the niche." },
+    { t: "Lock the Niche", d: "Write a one-line justification." }]},
+  { block: "Brand Identity", title: "Brand Name & Story", shifts: [
+    { t: "Brainstorm 10 Names", d: "Generate options for the brand." },
+    { t: "Shortlist & Tagline", d: "Pick top 3, draft a tagline for each." },
+    { t: "Lock Name & Story", d: "Finalise name + a short brand personality." }]},
+  { block: "Brand Identity", title: "Target Audience", shifts: [
+    { t: "Build a Persona", d: "Age, interests, platform habits, pain points." },
+    { t: "Research Consumption Habits", d: "What content type does this audience prefer?" },
+    { t: "List Content Desires", d: "What do they actually want to see?" }]},
+  { block: "Brand Identity", title: "Competitor Positioning", shifts: [
+    { t: "Revisit the Teardown", d: "Reconnect with Day 18's research." },
+    { t: "Define Differentiation", d: "Decide how your brand stands apart." },
+    { t: "Write Positioning Statement", d: "1-2 lines, clear and specific." }]},
+  { block: "Visual Identity", title: "Logo & Visual Direction", shifts: [
+    { t: "Sketch 3 Logo Concepts", d: "Design directly inside Canva." },
+    { t: "Self-Feedback Round", d: "Which best represents the brand?" },
+    { t: "Lock Visual Direction", d: "Refine the chosen concept." }]},
+  { block: "Visual Identity", title: "Brand Kit Build", shifts: [
+    { t: "Finalise Colour Palette", d: "Lock 3-4 core brand colours." },
+    { t: "Finalise Font Pairing", d: "Pick a display + body font combo." },
+    { t: "Set Up Brand Kit", d: "Save logo, colours & fonts in Canva." }]},
+  { block: "Visual Identity", title: "Post Template System", shifts: [
+    { t: "Build 3 Templates", d: "Using the new brand kit." },
+    { t: "Test 2 Variations Each", d: "Try alternate layouts per template." },
+    { t: "Finalise Templates", d: "Save the best versions as reusable." }]},
+  { block: "Visual Identity", title: "Carousel Template", shifts: [
+    { t: "Build Carousel Template", d: "5-slide reusable structure." },
+    { t: "Test With Dummy Content", d: "Fill it in to check the flow." },
+    { t: "Refine Visual Flow", d: "Adjust pacing between slides." }]},
+  { block: "Content Planning", title: "Content Pillars Lock-in", shifts: [
+    { t: "Decide Final Pillars", d: "4-5 pillars specific to this brand." },
+    { t: "Brainstorm Per Pillar", d: "3 content ideas for each pillar." },
+    { t: "Document the Pillars", d: "Write a description for each." }]},
+  { block: "Content Planning", title: "30-Day Calendar Draft", shifts: [
+    { t: "Map Post Ideas", d: "Spread ideas across pillars for 30 days." },
+    { t: "Decide Format Mix", d: "How many posts, reels, carousels." },
+    { t: "Build Calendar Sheet", d: "Organise it into a visual sheet." }]},
+  { block: "Caption Bank", title: "Caption Bank (1-10)", shifts: [
+    { t: "Write Captions 1-5", d: "For the first calendar slots." },
+    { t: "Write Captions 6-10", d: "Continue the caption bank." },
+    { t: "Framework Review", d: "Check all 10 against your training." }]},
+  { block: "Caption Bank", title: "Caption Bank (11-20)", shifts: [
+    { t: "Write Captions 11-15", d: "Continue the caption bank." },
+    { t: "Write Captions 16-20", d: "Finish this batch." },
+    { t: "Voice Consistency Check", d: "Does the brand voice stay consistent?" }]},
+  { block: "Pre-Launch", title: "Reel Concepts", shifts: [
+    { t: "Brainstorm 5 Reel Ideas", d: "Match them to your content pillars." },
+    { t: "Storyboard Each Idea", d: "Break into 3-4 shots per reel." },
+    { t: "Set Priority Order", d: "Decide which reel gets made first." }]},
+  { block: "Pre-Launch", title: "Pre-Launch Post Batch", shifts: [
+    { t: "Design Posts 1-3", d: "Using your finalised templates." },
+    { t: "Design Posts 4-5", d: "Complete the first week's posts." },
+    { t: "Consistency Check", d: "Review visual consistency across all posts." }]},
+  { block: "Pre-Launch", title: "Pre-Launch Reel Batch", shifts: [
+    { t: "Edit Reel #1", d: "From your storyboard, full production quality." },
+    { t: "Edit Reel #2", d: "Second storyboard, full edit." },
+    { t: "Final Review", d: "Add captions/hooks, polish both reels." }]},
+  { block: "Launch", title: "Platform Setup", shifts: [
+    { t: "Create the Profile", d: "Set up the real Instagram/social account." },
+    { t: "Write Bio & Highlights", d: "Plan structure and profile visuals." },
+    { t: "Brand Kit Check", d: "Confirm profile matches brand kit." }]},
+  { block: "Launch", title: "Launch Day", shifts: [
+    { t: "Publish First Post", d: "Go live with your first real post." },
+    { t: "Publish First Reel", d: "Go live with your first real reel." },
+    { t: "Log Baseline Metrics", d: "Record Day 1 reach, likes, views." }]},
+  { block: "AI Integration", title: "AI Prompt Practice", shifts: [
+    { t: "Write Brand-Voice Prompts", d: "Practice ChatGPT prompts in brand tone." },
+    { t: "Generate 10 Variations", d: "Captions/ideas generated via AI." },
+    { t: "Curate Best Outputs", d: "Edit AI drafts into brand voice." }]},
+  { block: "AI Integration", title: "AI Batch Generation", shifts: [
+    { t: "Generate a Week of Ideas", d: "Use AI to speed up ideation." },
+    { t: "Slot Into Calendar", d: "Place ideas into the content calendar." },
+    { t: "Replace Weak Ideas", d: "Swap out anything below standard." }]},
+  { block: "AI Integration", title: "Engagement Practice", shifts: [
+    { t: "Research Engagement Tactics", d: "Replies, comments, community building." },
+    { t: "Practice Engaging", d: "Genuinely engage with similar niche accounts." },
+    { t: "Plan Comment Responses", d: "Draft how you'll respond to your own posts." }]},
+  { block: "Week 2 Production", title: "Week 2 Post Batch", shifts: [
+    { t: "Design Posts 1-2", d: "Using calendar + templates." },
+    { t: "Design Posts 3-4", d: "Continue the batch." },
+    { t: "Design Post 5", d: "Finish week 2's posts." }]},
+  { block: "Week 2 Production", title: "Week 2 Reel Batch", shifts: [
+    { t: "Edit Reel #1", d: "Publish-ready quality." },
+    { t: "Edit Reel #2", d: "Publish-ready quality." },
+    { t: "Final Polish", d: "Captions, hooks, review both." }]},
+  { block: "Batch Sprint", title: "Batch Sprint — Round 1", shifts: [
+    { t: "Batch Write", d: "Write next week's captions in one sitting." },
+    { t: "Batch Design", d: "Design next week's posts/carousels." },
+    { t: "Batch Schedule", d: "Load and schedule via Buffer/Later free tier." }]},
+  { block: "Batch Sprint", title: "Batch Sprint — Round 2", shifts: [
+    { t: "Batch Write", d: "Write next week's captions in one sitting." },
+    { t: "Batch Design", d: "Design next week's posts/carousels." },
+    { t: "Batch Schedule", d: "Load and schedule via Buffer/Later free tier." }]},
+  { block: "Batch Sprint", title: "Batch Sprint — Round 3", shifts: [
+    { t: "Batch Write", d: "Write next week's captions in one sitting." },
+    { t: "Batch Design", d: "Design next week's posts/carousels." },
+    { t: "Batch Schedule", d: "Load and schedule via Buffer/Later free tier." }]},
+  { block: "Batch Sprint", title: "Batch Sprint — Round 4", shifts: [
+    { t: "Batch Write", d: "Write next week's captions in one sitting." },
+    { t: "Batch Design", d: "Design next week's posts/carousels." },
+    { t: "Batch Schedule", d: "Load and schedule via Buffer/Later free tier." }]},
+  { block: "Batch Sprint", title: "Batch Sprint — Round 5", shifts: [
+    { t: "Batch Write", d: "Write next week's captions in one sitting." },
+    { t: "Batch Design", d: "Design next week's posts/carousels." },
+    { t: "Batch Schedule", d: "Load and schedule via Buffer/Later free tier." }]},
+  { block: "Batch Sprint", title: "Batch Sprint — Round 6", shifts: [
+    { t: "Batch Write", d: "Write next week's captions in one sitting." },
+    { t: "Batch Design", d: "Design next week's posts/carousels." },
+    { t: "Batch Schedule", d: "Load and schedule via Buffer/Later free tier." }]},
+  { block: "Audit & Wrap-up", title: "Stage 1 Audit", shifts: [
+    { t: "Review Best Performers", d: "Which post/reel performed best & why." },
+    { t: "Identify Gaps", d: "What skills still feel weak." },
+    { t: "Document Learnings", d: "Write down what carries into Stage 2." }]},
+  { block: "Audit & Wrap-up", title: "Stage 1 Wrap-up", shifts: [
+    { t: "Finalise Content Bank", d: "Clean up unused drafts and assets." },
+    { t: "Prep Stage 2 Outreach List", d: "Pre-draft businesses to approach next." },
+    { t: "Celebrate & Reset", d: "Rest, review the full 50-day journey." }]},
+];
+
+const BLOCKS_STAGE1 = [
+  { label: "PHASE A — SKILL BUILDING (NO BRAND YET)", blocks: [
+    { name: "Design Foundations", range: [1, 4] },
+    { name: "Copywriting", range: [5, 8] },
+    { name: "Reel Editing", range: [9, 14] },
+    { name: "Strategy Theory", range: [15, 18] },
+    { name: "Certification", range: [19, 20] } ]},
+  { label: "PHASE B — BRAND FOUNDATION", blocks: [
+    { name: "Brand Identity", range: [21, 24] },
+    { name: "Visual Identity & Brand Kit", range: [25, 28] },
+    { name: "Content Planning", range: [29, 30] },
+    { name: "Caption Bank", range: [31, 32] },
+    { name: "Pre-Launch Production", range: [33, 35] } ]},
+  { label: "PHASE C — LAUNCH & PRODUCTION SPRINT", blocks: [
+    { name: "Launch", range: [36, 37] },
+    { name: "AI Integration & Engagement", range: [38, 40] },
+    { name: "Week 2 Production", range: [41, 42] },
+    { name: "Batch Sprint", range: [43, 48] },
+    { name: "Audit & Wrap-up", range: [49, 50] } ]},
+];
+
+const CURRICULUM = [
+  { range: [51, 57], stage: 2, title: "Analytics Fundamentals", shifts: [
+    { t: "Learn the Metrics", d: "Study reach, impressions & engagement-rate definitions." },
+    { t: "Audit Insights", d: "Analyse the brand's post performance data so far." },
+    { t: "Log the Patterns", d: "Document which content types perform best, and why." }]},
+  { range: [58, 64], stage: 2, title: "Posting Strategy & Growth", shifts: [
+    { t: "Timing Research", d: "Find the brand's optimal posting times using data." },
+    { t: "Study Growth Tactics", d: "Research hashtag strategy and engagement tactics." },
+    { t: "Apply & Test", d: "Adjust the posting schedule and test one new tactic." }]},
+  { range: [65, 71], stage: 2, title: "Client Onboarding Systems", shifts: [
+    { t: "Build a Questionnaire", d: "Create a client-discovery questionnaire document." },
+    { t: "Draft a Scope Doc", d: "Write a simple scope-of-work template." },
+    { t: "Run a Mock Onboarding", d: "Walk through the process using a pretend client." }]},
+  { range: [72, 78], stage: 2, title: "Reporting Templates", shifts: [
+    { t: "Design Report Structure", d: "Build a monthly client-report template in Canva." },
+    { t: "Fill With Real Data", d: "Populate the report using the brand's own metrics." },
+    { t: "Polish the Presentation", d: "Refine visuals, add insights & recommendations." }]},
+  { range: [79, 85], stage: 2, title: "Real Client Outreach Prep", shifts: [
+    { t: "Shortlist Businesses", d: "List 10 real small businesses worth approaching." },
+    { t: "Write Outreach Scripts", d: "Draft 3 personalised outreach message templates." },
+    { t: "Send First Messages", d: "Send outreach to 3-5 shortlisted businesses." }]},
+  { range: [86, 92], stage: 2, title: "First Real Client — Phase 1", shifts: [
+    { t: "Plan Client Strategy", d: "Build content pillars & calendar for the real client." },
+    { t: "Produce Content", d: "Create the client's first week of content." },
+    { t: "Publish & Engage", d: "Post the content and actively engage their audience." }]},
+  { range: [93, 100], stage: 2, title: "First Real Client — Iteration", shifts: [
+    { t: "Track Results", d: "Log the client's weekly performance numbers." },
+    { t: "Iterate the Content", d: "Adjust strategy based on what's actually working." },
+    { t: "Client Check-in", d: "Share progress with the client and gather feedback." }]},
+  { range: [101, 107], stage: 3, title: "Case Study Documentation", shifts: [
+    { t: "Gather the Data", d: "Compile before/after metrics from the real client work." },
+    { t: "Write the Case Study", d: "Draft the narrative: problem → action → result." },
+    { t: "Design the One-Pager", d: "Turn the case study into a visual Canva one-pager." }]},
+  { range: [108, 114], stage: 3, title: "Portfolio Building", shifts: [
+    { t: "Select Best Work", d: "Curate the top 5 samples across every project." },
+    { t: "Assemble the Portfolio", d: "Build a portfolio site or PDF with those samples." },
+    { t: "Polish the Presentation", d: "Refine layout and write a sharp intro." }]},
+  { range: [115, 121], stage: 3, title: "Freelance Profile Setup", shifts: [
+    { t: "Study Top Profiles", d: "Analyse 10 top-rated global SMM freelancer profiles." },
+    { t: "Write Your Profile", d: "Draft a niche-specific bio, title & skills section." },
+    { t: "Build Gig Listings", d: "Set up service packages / gig listings." }]},
+  { range: [122, 128], stage: 3, title: "Proposal Writing", shifts: [
+    { t: "Study Winning Proposals", d: "Analyse examples of proposals that convert." },
+    { t: "Write Templates", d: "Draft 3-4 personalised proposal templates." },
+    { t: "Practice Pitches", d: "Write mock proposals for 3 sample job posts." }]},
+  { range: [129, 135], stage: 3, title: "Active Outreach Sprint", shifts: [
+    { t: "Find Jobs", d: "Browse and shortlist 10 relevant job postings." },
+    { t: "Send Proposals", d: "Submit 3-5 tailored proposals today." },
+    { t: "Follow Up", d: "Track responses and follow up on pending ones." }]},
+  { range: [136, 142], stage: 3, title: "Delivery & Pricing Systems", shifts: [
+    { t: "Pricing Research", d: "Study global beginner-freelancer rate benchmarks." },
+    { t: "Package Your Services", d: "Define your own service tiers and pricing." },
+    { t: "Build a Delivery Checklist", d: "Create a repeatable client-delivery workflow." }]},
+  { range: [143, 150], stage: 3, title: "Refinement + Next Phase Prep", shifts: [
+    { t: "Review the Sprint", d: "Audit wins, gaps, and skills that need strengthening." },
+    { t: "Redo the Weakest Piece", d: "Revisit and rebuild your weakest deliverable." },
+    { t: "Prep Paid Ads Phase", d: "Research Paid Ads fundamentals to start next." }]},
+];
+
+const SHIFT_ICONS = ["🎯", "⚡", "📚"];
+const STAGE_NAMES = { 1: "Foundation & Brand Build", 2: "Real Client Execution", 3: "Global Positioning" };
+const STAGE_RANGES = { 1: [1, 50], 2: [51, 100], 3: [101, 150] };
+const WORK_WINDOWS = {
+  night: { label: "Night", icon: "🌙", range: "11:30 PM – 3:00 AM", times: ["11:30 – 12:30", "12:40 – 1:40", "1:50 – 3:00"] },
+  morning: { label: "Morning", icon: "🌅", range: "5:30 AM – 9:00 AM", times: ["5:30 – 6:30", "6:40 – 7:40", "7:50 – 9:00"] },
+};
+const DURATIONS = ["60 min", "60 min", "70 min"];
+
+// ============ DATE HELPERS ============
+function pad(n) { return n < 10 ? "0" + n : "" + n; }
+function toKey(d) { return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()); }
+function fromKey(k) { const p = k.split("-").map(Number); return new Date(p[0], p[1] - 1, p[2]); }
+function addDays(key, n) { return toKey(new Date(fromKey(key).getTime() + n * 86400000)); }
+function fmtDate(key) { const d = fromKey(key); return d.toLocaleDateString("en-GB", { day: "numeric", month: "short" }); }
+function trackerDateKey(now) {
+  const d = new Date(now);
+  if (d.getHours() < 5) d.setDate(d.getDate() - 1);
+  d.setHours(0,0,0,0);
+  return toKey(d);
+}
+function daysBetween(a, b) { return Math.round((fromKey(b) - fromKey(a)) / 86400000); }
+function getWeekFor(dayNum) { return CURRICULUM.find(w => dayNum >= w.range[0] && dayNum <= w.range[1]) || CURRICULUM[0]; }
+function getDayInfo(dayNum) {
+  if (dayNum <= 50) { const i = DAILY_STAGE1[dayNum - 1]; return { title: i.title, block: i.block, stage: 1, shifts: i.shifts }; }
+  const w = getWeekFor(dayNum);
+  return { title: w.title, block: null, stage: w.stage, shifts: w.shifts };
+}
+
+// ============ STATE / STORAGE (localStorage — this is a real hosted site now) ============
+const STORAGE_KEY = "freelance-sprint-tracker-v1";
+let data = { progress: {} };
+function loadData() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) { const parsed = JSON.parse(raw); if (parsed && parsed.progress) data = parsed; }
+  } catch (e) { console.warn("Could not load saved data", e); }
+}
+function saveData() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch (e) { console.warn("Could not save data", e); }
+}
+
+// ============ CORE STATE HELPERS ============
+function now() { return new Date(); }
+function todayKey() { return trackerDateKey(now()); }
+function getDayNum() { return daysBetween(START_DATE, todayKey()) + 1; }
+function isNotStarted() { return getDayNum() < 1; }
+function clampedDay() { return Math.min(150, Math.max(1, getDayNum())); }
+function getTodayProgress() {
+  const k = todayKey();
+  return data.progress[k] || { workTime: "night", shifts: [false, false, false] };
+}
+function ensureTodayEntry() {
+  const k = todayKey();
+  if (!data.progress[k]) data.progress[k] = { workTime: "night", shifts: [false, false, false] };
+  return data.progress[k];
+}
+
+function setWorkTime(wt) {
+  const entry = ensureTodayEntry();
+  entry.workTime = wt;
+  saveData();
+  renderToday();
+}
+function toggleShift(idx) {
+  const entry = ensureTodayEntry();
+  if (entry.shifts[idx]) return; // locked — one-way only, no undo
+  entry.shifts[idx] = true;
+  saveData();
+  renderToday();
+  renderHeader();
+}
+
+// ============ STATS ============
+function computeStreak() {
+  let s = 0;
+  let d = fromKey(todayKey());
+  const tp = getTodayProgress();
+  if (!tp.shifts.every(Boolean)) d.setDate(d.getDate() - 1);
+  while (true) {
+    const p = data.progress[toKey(d)];
+    if (p && p.shifts.every(Boolean)) { s++; d.setDate(d.getDate() - 1); } else break;
+  }
+  return s;
+}
+function computeStageStats() {
+  const stats = {};
+  [1,2,3].forEach(s => {
+    const [a,b] = STAGE_RANGES[s];
+    let done = 0, partial = 0;
+    for (let d = a; d <= b; d++) {
+      const p = data.progress[addDays(START_DATE, d - 1)];
+      if (p && p.shifts.every(Boolean)) done++;
+      else if (p && p.shifts.some(Boolean)) partial++;
+    }
+    stats[s] = { done, partial, total: b - a + 1 };
+  });
+  return stats;
+}
+function completedDaysCount() { return Object.values(data.progress).filter(p => p.shifts.every(Boolean)).length; }
+function totalShiftsCount() { return Object.values(data.progress).reduce((n,p) => n + p.shifts.filter(Boolean).length, 0); }
+
+// ============ RENDER: HEADER ============
+function renderHeader() {
+  const notStarted = isNotStarted();
+  const dayNum = clampedDay();
+  const info = getDayInfo(dayNum);
+  const tp = getTodayProgress();
+  const shiftsDone = tp.shifts.filter(Boolean).length;
+  const ringPct = shiftsDone / 3;
+
+  document.getElementById("ringDay").textContent = notStarted ? "—" : pad(dayNum);
+  const circumference = 251.2;
+  document.getElementById("ringFill").setAttribute("stroke-dashoffset", notStarted ? circumference : circumference * (1 - ringPct));
+  document.getElementById("stageTag").textContent = "STAGE " + info.stage + " · " + STAGE_NAMES[info.stage].toUpperCase();
+  document.getElementById("todayTitle").textContent = notStarted ? "Sprint not launched yet" : info.title;
+  document.getElementById("todaySub").textContent = notStarted ? "" : shiftsDone + "/3 shifts done today";
+
+  const realNow = new Date();
+  const weekdayDate = realNow.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+  const banner = document.getElementById("dateBanner");
+  banner.textContent = notStarted
+    ? "TODAY: " + weekdayDate.toUpperCase() + " — SPRINT NOT LIVE YET"
+    : "TODAY IS DAY " + dayNum + " OF 150 — " + weekdayDate.toUpperCase();
+
+  const streak = computeStreak();
+  document.getElementById("streakVal").textContent = streak;
+  document.getElementById("streakPill").className = "streak-pill" + (streak > 0 ? " on" : "");
+}
+
+// ============ RENDER: TODAY ============
+function renderToday() {
+  const notStarted = isNotStarted();
+  const container = document.getElementById("todayBody");
+
+  if (notStarted) {
+    const daysToGo = Math.abs(daysBetween(todayKey(), START_DATE));
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">🚀</div>
+        <div class="empty-title">Not launched yet</div>
+        <div class="empty-sub">Starts <strong>6 Aug 2026</strong> — ${daysToGo} day${daysToGo===1?"":"s"} to go.</div>
+        <button class="empty-btn" onclick="switchTab('schedule')">📅 Preview timeline</button>
+      </div>`;
+    return;
+  }
+
+  const dayNum = clampedDay();
+  const info = getDayInfo(dayNum);
+  const tp = getTodayProgress();
+  const win = WORK_WINDOWS[tp.workTime];
+  const shiftsDone = tp.shifts.filter(Boolean).length;
+
+  let html = `
+    <div class="ww-slider">
+      <div class="ww-thumb" style="transform: translateX(${tp.workTime === "morning" ? "calc(100% + 8px)" : "0"});"></div>
+      <button class="ww-btn ${tp.workTime==="night"?"active":""}" onclick="setWorkTime('night')">🌙 Night</button>
+      <button class="ww-btn ${tp.workTime==="morning"?"active":""}" onclick="setWorkTime('morning')">🌅 Morning</button>
+    </div>
+    <div class="ww-range">${win.range}</div>
+
+    <div class="label" style="margin-top:22px;">${info.block ? info.block.toUpperCase() : ""}</div>
+    <div class="steps">`;
+
+  for (let i = 0; i < 3; i++) {
+    html += `<div class="step-node-wrap">
+      <div class="step-node ${tp.shifts[i]?"done":""}" onclick="toggleShift(${i})">${tp.shifts[i] ? "✓" : SHIFT_ICONS[i]}</div>
+      ${i < 2 ? `<div class="step-line ${tp.shifts[i]?"done":""}"></div>` : ""}
+    </div>`;
+  }
+  html += `</div>`;
+
+  html += `<div class="shift-list">`;
+  for (let i = 0; i < 3; i++) {
+    const done = tp.shifts[i];
+    const sh = info.shifts[i];
+    html += `
+      <div class="shift-card ${done?"done":""}" onclick="toggleShift(${i})">
+        <div class="shift-row">
+          <span class="shift-num">SHIFT ${pad(i+1)} ${done?'<span class="lock-badge">🔒</span>':""}</span>
+          <span class="shift-time">${win.times[i]} · ${DURATIONS[i]}</span>
+        </div>
+        <div class="shift-title">${sh.t}</div>
+        <div class="shift-desc">${sh.d}</div>
+      </div>`;
+    if (i < 2) html += `<div class="break-row">☕ 10 MIN BREAK <div class="break-line"></div></div>`;
+  }
+  html += `</div>`;
+
+  html += renderLedgerHTML(dayNum);
+
+  html += `
+    <div class="cta-row" onclick="switchTab('results')">
+      <div class="cta-left">🏆 ${completedDaysCount()}/150 days complete</div>
+      <div class="cta-right">BACKUP →</div>
+    </div>`;
+
+  container.innerHTML = html;
+}
+
+// ============ DAY LEDGER (shows which day is current, locks past days visually) ============
+function renderLedgerHTML(dayNum) {
+  const stageOf = (d) => d <= 50 ? 1 : d <= 100 ? 2 : 3;
+  const stage = stageOf(dayNum);
+  const [rangeStart, rangeEnd] = STAGE_RANGES[stage];
+
+  let chips = "";
+  for (let d = rangeStart; d <= rangeEnd; d++) {
+    const key = addDays(START_DATE, d - 1);
+    const p = data.progress[key];
+    const isToday = d === dayNum;
+    const isPast = d < dayNum;
+    const isFuture = d > dayNum;
+    const full = p && p.shifts.every(Boolean);
+    const partial = p && p.shifts.some(Boolean) && !full;
+
+    let cls = "ledger-chip";
+    let label = d;
+    if (isToday) { cls += " today"; }
+    else if (isPast) {
+      if (full) cls += " done";
+      else if (partial) cls += " partial";
+      else cls += " missed";
+    } else if (isFuture) { cls += " future"; }
+
+    chips += `<div class="${cls}" title="Day ${d} · ${fmtDate(key)}${isFuture ? " (locked — not reached yet)" : isPast && !full ? " (locked — missed)" : ""}">${label}</div>`;
+  }
+
+  return `
+    <div class="ledger-section">
+      <div class="label" style="margin-top:22px; display:flex; justify-content:space-between; align-items:center;">
+        <span>SPRINT LEDGER · STAGE ${stage}</span>
+        <span style="color:#dc2626;">DAY ${dayNum} IS ACTIVE</span>
+      </div>
+      <div class="ledger-grid">${chips}</div>
+      <div class="ledger-legend">
+        <span><i class="lg done"></i> done</span>
+        <span><i class="lg today"></i> today</span>
+        <span><i class="lg missed"></i> missed (locked)</span>
+        <span><i class="lg future"></i> locked</span>
+      </div>
+    </div>`;
+}
+
+// ============ RENDER: TIMELINE ============
+function renderTimeline() {
+  const notStarted = isNotStarted();
+  const dayNum = clampedDay();
+  let html = "";
+
+  for (let s = 1; s <= 3; s++) {
+    html += `<div class="stage-block">
+      <div class="stage-head">
+        <div class="stage-dot"></div>
+        <div>
+          <div class="stage-name">${STAGE_NAMES[s]}</div>
+          <div class="stage-range">Days ${STAGE_RANGES[s][0]}–${STAGE_RANGES[s][1]} · ${fmtDate(addDays(START_DATE, STAGE_RANGES[s][0]-1))} → ${fmtDate(addDays(START_DATE, STAGE_RANGES[s][1]-1))}</div>
+        </div>
+      </div>`;
+
+    if (s === 1) {
+      BLOCKS_STAGE1.forEach(phase => {
+        html += `<div class="phase-label">${phase.label}</div>`;
+        phase.blocks.forEach(b => {
+          const isCurrent = !notStarted && dayNum >= b.range[0] && dayNum <= b.range[1];
+          const isPast = !notStarted && dayNum > b.range[1];
+          const icon = isPast ? "✅" : isCurrent ? "⚡" : "🔒";
+          html += `<div class="block-row ${isCurrent?"current":""}">
+            <div class="block-days">D${b.range[0]}-${b.range[1]}</div>
+            <div class="block-name">${b.name}</div>
+            <div class="block-icon">${icon}</div>
+          </div>`;
+        });
+      });
+    } else {
+      CURRICULUM.filter(w => w.stage === s).forEach(w => {
+        const isCurrent = !notStarted && dayNum >= w.range[0] && dayNum <= w.range[1];
+        const isPast = !notStarted && dayNum > w.range[1];
+        const icon = isPast ? "✅" : isCurrent ? "⚡" : "🔒";
+        html += `<div class="block-row ${isCurrent?"current":""}">
+          <div class="block-days">D${w.range[0]}-${w.range[1]}</div>
+          <div class="block-name">${w.title}</div>
+          <div class="block-icon">${icon}</div>
+        </div>`;
+      });
+    }
+    html += `</div>`;
+  }
+  document.getElementById("timelineBody").innerHTML = html;
+}
+
+// ============ RENDER: RESULTS ============
+function renderResults() {
+  document.getElementById("statDays").innerHTML = completedDaysCount() + "<small>/150</small>";
+  document.getElementById("statShifts").innerHTML = totalShiftsCount() + "<small>/450</small>";
+
+  const stats = computeStageStats();
+  let html = "";
+  [1,2,3].forEach(s => {
+    const st = stats[s];
+    const pct = Math.round((st.done / st.total) * 100);
+    html += `<div class="sp-row">
+      <div class="sp-top"><span>Stage ${s} · ${STAGE_NAMES[s]}</span><span>${st.done}/${st.total}</span></div>
+      <div class="sp-bar-bg"><div class="sp-bar-fill" style="width:${pct}%;"></div></div>
+    </div>`;
+  });
+  document.getElementById("stageProgress").innerHTML = html;
+}
+
+// ============ TABS ============
+function switchTab(tab) {
+  document.querySelectorAll(".tab-btn").forEach(b => b.classList.toggle("active", b.dataset.tab === tab));
+  document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+  document.getElementById("section-" + tab).classList.add("active");
+  if (tab === "schedule") renderTimeline();
+  if (tab === "results") renderResults();
+}
+
+// ============ BACKUP CODE ============
+function getBackupCode() {
+  try { return btoa(unescape(encodeURIComponent(JSON.stringify(data)))); } catch(e) { return ""; }
+}
+function copyBackupCode() {
+  const code = getBackupCode();
+  const ta = document.getElementById("backupTextArea");
+  ta.value = code;
+  navigator.clipboard.writeText(code).then(() => {
+    const btn = document.getElementById("copyBackupBtn");
+    const orig = btn.textContent;
+    btn.textContent = "✓ Copied!";
+    setTimeout(() => btn.textContent = orig, 1800);
+  }).catch(() => {
+    ta.style.display = "block";
+    ta.focus();
+    ta.select();
+  });
+}
+function restoreBackupCode() {
+  const input = document.getElementById("restoreInput");
+  const msg = document.getElementById("restoreMsg");
+  try {
+    const decoded = JSON.parse(decodeURIComponent(escape(atob(input.value.trim()))));
+    if (!decoded || !decoded.progress) throw new Error("bad");
+    data = decoded;
+    saveData();
+    msg.innerHTML = '<div class="msg ok">✓ Restored successfully.</div>';
+    input.value = "";
+    renderHeader(); renderToday(); renderResults();
+  } catch(e) {
+    msg.innerHTML = '<div class="msg bad">✗ Invalid code — check you copied the whole thing.</div>';
+  }
+  setTimeout(() => msg.innerHTML = "", 3000);
+}
+
+// ============ REPORT ============
+function buildReport() {
+  const notStarted = isNotStarted();
+  const dayNum = clampedDay();
+  const stats = computeStageStats();
+  const lines = [
+    "150-DAY GLOBAL FREELANCE SPRINT — REPORT",
+    "Start: " + fmtDate(START_DATE) + " · Today: Day " + (notStarted ? "not started" : dayNum) + "/150",
+    "Days complete: " + completedDaysCount() + "/150 · Shifts: " + totalShiftsCount() + "/450 · Streak: " + computeStreak(),
+    ""
+  ];
+  [1,2,3].forEach(s => lines.push("Stage " + s + " — " + STAGE_NAMES[s] + ": " + stats[s].done + "/" + stats[s].total + " days"));
+  lines.push("", "STAGE 1 DAY LOG");
+  for (let d = 1; d <= 50; d++) {
+    const p = data.progress[addDays(START_DATE, d - 1)];
+    lines.push("Day " + d + " (" + DAILY_STAGE1[d-1].title + "): " + (p ? p.shifts.filter(Boolean).length : 0) + "/3");
+  }
+  lines.push("", "STAGE 2 & 3 WEEK LOG");
+  CURRICULUM.forEach(w => {
+    let done = 0;
+    for (let d = w.range[0]; d <= w.range[1]; d++) { const p = data.progress[addDays(START_DATE, d-1)]; if (p && p.shifts.every(Boolean)) done++; }
+    lines.push("Days " + w.range[0] + "-" + w.range[1] + " (" + w.title + "): " + done + "/" + (w.range[1]-w.range[0]+1));
+  });
+  return lines.join("\n");
+}
+function downloadReport() {
+  const text = buildReport();
+  const blob = new Blob([text], { type: "text/plain" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = "sprint-day-" + clampedDay() + ".txt";
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+function copyReport() {
+  navigator.clipboard.writeText(buildReport()).then(() => {
+    const btn = document.getElementById("copyReportBtn");
+    const orig = btn.textContent;
+    btn.textContent = "✓ Copied";
+    setTimeout(() => btn.textContent = orig, 1800);
+  });
+}
+
+// ============ INIT ============
+function init() {
+  loadData();
+  document.getElementById("loading").style.display = "none";
+  document.getElementById("app").style.display = "block";
+  renderHeader();
+  renderToday();
+  // refresh header every 30s in case day/time rolls over while page is open
+  setInterval(() => { renderHeader(); }, 30000);
+}
+document.addEventListener("DOMContentLoaded", init);
+</script>
+</body>
+</html>

@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Foundation Tracker</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap');
+
+  :root {
+    --bg-deep: #0A0A0A;
+    --bg-panel: #151515;
+    --bg-panel2: #1F1F1F;
+    --line-r: rgba(225,75,59,0.28);
+    --green: #8A2620;
+    --green-bright: #E14B3B;
+    --cream: #F7F4EC;
+    --cream-dim: #9C9C94;
+    --red: #FF3B30;
+    --red-soft: rgba(255,59,48,0.18);
+    --deen: #2E8B57;
+    --deen-soft: rgba(46,139,87,0.16);
+    --deen-line: rgba(46,139,87,0.32);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: radial-gradient(circle at 50% -10%, var(--bg-panel2) 0%, var(--bg-deep) 55%);
+    font-family: 'Inter', sans-serif;
+    color: var(--cream);
+    min-height: 100vh;
+    padding-bottom: 48px;
+  }
+  button { font-family: inherit; }
+  .wrap { max-width: 460px; margin: 0 auto; padding: 0 20px; }
+  .display { font-family: 'Fraunces', serif; }
+
+  @keyframes riseIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes floorFill { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+  @keyframes flicker { 0%,100% { opacity: 1; } 50% { opacity: .6; } }
+  @keyframes pulseRing { 0% { box-shadow: 0 0 0 0 var(--red-soft); } 70% { box-shadow: 0 0 0 10px rgba(255,59,48,0); } 100% { box-shadow: 0 0 0 0 rgba(255,59,48,0); } }
+  @keyframes popCheck { 0% { transform: scale(0.6); opacity: 0; } 60% { transform: scale(1.15); opacity: 1; } 100% { transform: scale(1); } }
+  @keyframes confettiFall { 0% { transform: translateY(-20px) rotate(0deg); opacity: 1; } 100% { transform: translateY(160px) rotate(360deg); opacity: 0; } }
+
+  .task-card { animation: riseIn .5s ease backwards; }
+  .floor { transform-origin: bottom; animation: floorFill .6s cubic-bezier(.2,.8,.2,1) backwards; }
+  .flame-icon { animation: flicker 1.6s ease-in-out infinite; display: inline-flex; }
+  .tension { animation: pulseRing 1.8s infinite; }
+  .check-pop { animation: popCheck .35s cubic-bezier(.34,1.56,.64,1); }
+  .confetti { position: absolute; animation: confettiFall 1.8s ease-in forwards; }
+
+  .icon { display: inline-flex; vertical-align: middle; }
+  .icon svg { display: block; }
+
+  .tab-btn { flex: 1; display: flex; align-items: center; justify-content: center; gap: 5px;
+    background: transparent; color: var(--cream-dim); border: none; border-radius: 8px;
+    padding: 7px 0; font-size: 11.5px; font-weight: 600; cursor: pointer; transition: background .2s ease; }
+  .tab-btn.active { background: var(--green-bright); color: var(--bg-deep); }
+
+  .btn-ghost { background: none; border: none; cursor: pointer; padding: 0; color: inherit; }
+  input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%; background: var(--green-bright); cursor: pointer; }
+
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-thumb { background: var(--line-r); border-radius: 4px; }
+</style>
+</head>
+<body>
+  <div id="app"></div>
+
+<script>
+/* ---------- Icons (minimal Feather-style inline SVG) ---------- */
+const ICONS = {
+  building: '<rect x="4" y="2" width="16" height="20" rx="1"/><line x1="9" y1="6" x2="15" y2="6"/><line x1="9" y1="10" x2="15" y2="10"/><line x1="9" y1="14" x2="15" y2="14"/><line x1="9" y1="18" x2="15" y2="18"/>',
+  trending: '<polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>',
+  book: '<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>',
+  languages: '<path d="M4 5h11"/><path d="M9 3v2"/><path d="M4 12s2.5-1 4.5-4"/><path d="M7 9c1.2 2 3 3.5 5 4.5"/><path d="M14 21l4-9 4 9"/><path d="M15.5 18h5"/>',
+  flame: '<path d="M12 2c0 4-6 6-6 12a6 6 0 0 0 12 0c0-2-1-3.5-1-3.5s.5 2-1 2.5c0-3-4-5-4-11z"/>',
+  check: '<polyline points="20 6 9 17 4 12"/>',
+  checkCircle: '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>',
+  circle: '<circle cx="12" cy="12" r="9"/>',
+  minusCircle: '<circle cx="12" cy="12" r="9"/><line x1="7.5" y1="12" x2="16.5" y2="12"/>',
+  alert: '<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>',
+  plus: '<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>',
+  minus: '<line x1="5" y1="12" x2="19" y2="12"/>',
+  party: '<path d="M5.8 11.3 2 22l10.7-3.8"/><path d="m11 13 4-4"/><path d="m4 4 3 3"/><path d="m17 3 1 3 3 1-3 1-1 3-1-3-3-1 3-1z"/><path d="m14 8 1 2"/>',
+  chevronDown: '<polyline points="6 9 12 15 18 9"/>',
+  chevronUp: '<polyline points="18 15 12 9 6 15"/>',
+  download: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>',
+  bar: '<line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/>',
+  cal: '<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>',
+  grid: '<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>',
+  clipboard: '<path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/>',
+  sunrise: '<line x1="12" y1="2" x2="12" y2="9"/><polyline points="16 5 12 9 8 5"/><line x1="1" y1="18" x2="23" y2="18"/><path d="M5 15a7 7 0 0 1 14 0"/>',
+  sun: '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.2" y1="4.2" x2="5.6" y2="5.6"/><line x1="18.4" y1="18.4" x2="19.8" y2="19.8"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.2" y1="19.8" x2="5.6" y2="18.4"/><line x1="18.4" y1="5.6" x2="19.8" y2="4.2"/>',
+  sunset: '<line x1="12" y1="9" x2="12" y2="2"/><polyline points="16 6 12 2 8 6"/><line x1="1" y1="18" x2="23" y2="18"/><path d="M5 15a7 7 0 0 1 14 0"/>',
+  moon: '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>',
+  star: '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26"/>',
+  sparkles: '<path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2 2M16 16l2 2M18 6l-2 2M8 16l-2 2"/>',
+  heart: '<path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.8 1-1a5.5 5.5 0 0 0 0-7.8z"/>',
+  repeat: '<polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/>',
+  dumbbell: '<rect x="1" y="9" width="4" height="6" rx="1"/><rect x="19" y="9" width="4" height="6" rx="1"/><line x1="5" y1="12" x2="19" y2="12"/>',
+  feather: '<path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"/><line x1="16" y1="8" x2="2" y2="22"/><line x1="17.5" y1="15" x2="9" y2="15"/>',
+  smile: '<circle cx="12" cy="12" r="9"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/>',
+  wind: '<path d="M9.6 4.6A2 2 0 1 1 11 8H2m10.6 11.4A2 2 0 1 0 14 16H2m15.7-8.3A2.5 2.5 0 1 1 19.5 12H2"/>',
+  message: '<path d="M21 11.5a8.4 8.4 0 0 1-8.9 8.4A8.4 8.4 0 0 1 4 15l-1 5 5-1a8.4 8.4 0 0 1 4-1 8.4 8.4 0 0 1 9-6.5z"/>',
+  ban: '<circle cx="12" cy="12" r="9"/><line x1="5.5" y1="5.5" x2="18.5" y2="18.5"/>',
+};
+function icon(name, size, color, extraClass) {
+  size = size || 16; color = color || 'currentColor'; extraClass = extraClass || '';
+  return `<span class="icon ${extraClass}" style="color:${color}"><svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICONS[name] || ''}</svg></span>`;
+}
+
+/* ---------- Data model ---------- */
+const CHALLENGE_START = new Date(2026, 7, 6); // Aug 6, 2026 — final, locked date
+const CHALLENGE_LENGTH = 180;
+const DEEN_TRIAL_START = new Date(2026, 7, 5); // 5 Aug 2026 — trial/test window
+const DEEN_FINAL_START = new Date(2026, 7, 6); // 6 Aug 2026 — official 1-year start
+const DEEN_LENGTH = 365;
+
+const TASKS = [
+  { id: 'pw', label: 'PW Foundation', time: '2:20 – 5:00 PM', endMinutes: 17 * 60, iconName: 'building',
+    subTasks: [ { id: 'pwLecture', label: 'Lecture (1h 10m)' }, { id: 'pwNotes', label: 'Notes (30m)' } ] },
+  { id: 'business', label: 'P&I Business', time: '5:40 – 6:40 PM', endMinutes: 18 * 60 + 40, iconName: 'trending' },
+  { id: 'arabic', label: 'Arabic Live Class', time: '10:00 – 11:00 PM', endMinutes: 23 * 60, iconName: 'book' },
+  { id: 'english', label: 'English', time: 'Anytime · 40 min min', endMinutes: 24 * 60, iconName: 'languages' },
+];
+const SALAH = [
+  { id: 'fajr', label: 'Fajr', iconName: 'sunrise' },
+  { id: 'zuhr', label: 'Zuhr', iconName: 'sun' },
+  { id: 'asr', label: 'Asr', iconName: 'sun' },
+  { id: 'maghrib', label: 'Maghrib', iconName: 'sunset' },
+  { id: 'isha', label: 'Isha', iconName: 'moon' },
+];
+const TAHAJJUD = { id: 'tahajjud', label: 'Tahajjud', iconName: 'star' };
+const AFTER_SALAH = [
+  { id: 'dhikr', label: 'Dhikr / Adhkar', iconName: 'sparkles' },
+  { id: 'dua', label: 'Dua', iconName: 'heart' },
+  { id: 'sunnah', label: 'Sunnah Prayers', iconName: 'repeat' },
+];
+const CHARACTER = [
+  { id: 'char_fitness', label: 'Fitness', iconName: 'dumbbell' },
+  { id: 'char_tawakkul', label: 'Tawakkul', iconName: 'feather' },
+  { id: 'char_confidence', label: 'Self-Confidence', iconName: 'smile' },
+  { id: 'char_anger', label: 'Anger Control', iconName: 'wind' },
+  { id: 'char_comm', label: 'Communication Skills', iconName: 'message' },
+  { id: 'char_habits', label: 'Avoid Bad Habits', iconName: 'ban' },
+];
+const HISTORY_GROUPS = [
+  { title: 'Study & Work', items: [
+    { id: 'pwLecture', label: 'PW Lecture' }, { id: 'pwNotes', label: 'PW Notes' },
+    { id: 'business', label: 'P&I Business' }, { id: 'arabic', label: 'Arabic Class' }, { id: 'english', label: 'English' } ] },
+  { title: 'Ibadah', items: [
+    { id: 'fajr', label: 'Fajr' }, { id: 'zuhr', label: 'Zuhr' }, { id: 'asr', label: 'Asr' },
+    { id: 'maghrib', label: 'Maghrib' }, { id: 'isha', label: 'Isha' }, { id: 'tahajjud', label: 'Tahajjud' },
+    { id: 'dhikr', label: 'Dhikr' }, { id: 'dua', label: 'Dua' }, { id: 'sunnah', label: 'Sunnah' } ] },
+  { title: 'Character', items: CHARACTER.map(c => ({ id: c.id, label: c.label })) },
+];
+
+function pad(n) { return String(n).padStart(2, '0'); }
+function dateStr(d) { return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; }
+function dayLabel(d) { return d.toLocaleDateString(undefined, { weekday: 'short' }); }
+function emptyDay() {
+  return {
+    pwLecture: false, pwNotes: false, business: false, arabic: false, arabicSkip: false, english: false, englishMinutes: 0,
+    fajr: false, zuhr: false, asr: false, maghrib: false, isha: false, tahajjud: false,
+    dhikr: false, dua: false, sunnah: false,
+    char_fitness: false, char_tawakkul: false, char_confidence: false, char_anger: false, char_comm: false, char_habits: false,
+  };
+}
+function isDone(rec, id) {
+  if (!rec) return false;
+  if (id === 'pw') return !!(rec.pwLecture && rec.pwNotes);
+  if (id === 'arabic') return !!(rec.arabic || rec.arabicSkip);
+  return !!rec[id];
+}
+
+/* ---------- State ---------- */
+let state = {
+  history: {},
+  loading: true,
+  saveError: false,
+  now: new Date(),
+  celebrate: false,
+  view: 'today',
+  expandedDate: null,
+  copied: false,
+};
+
+async function loadHistory() {
+  try {
+    const res = await window.storage.get('foundation-tracker-history', false);
+    state.history = res ? JSON.parse(res.value) : {};
+  } catch (e) {
+    state.history = {};
+  } finally {
+    state.loading = false;
+    render();
+  }
+}
+
+async function persist(newHist) {
+  state.history = newHist;
+  render();
+  try {
+    const result = await window.storage.set('foundation-tracker-history', JSON.stringify(newHist), false);
+    state.saveError = !result;
+  } catch (e) {
+    state.saveError = true;
+  }
+  render();
+}
+
+function today() { return dateStr(state.now); }
+function todayData() { return state.history[today()] || emptyDay(); }
+
+function updateToday(patch) {
+  const merged = Object.assign({}, emptyDay(), todayData(), patch);
+  const newHist = Object.assign({}, state.history, { [today()]: merged });
+  if (TASKS.every(t => isDone(merged, t.id))) {
+    state.celebrate = true;
+    setTimeout(() => { state.celebrate = false; render(); }, 2200);
+  }
+  persist(newHist);
+}
+
+function toggleTask(id) {
+  const td = todayData();
+  if (id === 'arabic') { updateToday({ arabic: !td.arabic, arabicSkip: false }); return; }
+  updateToday({ [id]: !td[id] });
+}
+function toggleArabicSkip() {
+  const td = todayData();
+  updateToday({ arabicSkip: !td.arabicSkip, arabic: false });
+}
+function addEnglishMinutes(delta) {
+  const td = todayData();
+  const mins = Math.max(0, (td.englishMinutes || 0) + delta);
+  updateToday({ englishMinutes: mins, english: mins >= 40 });
+}
+function resetToday() { persist(Object.assign({}, state.history, { [today()]: emptyDay() })); }
+
+function getStreak(id) {
+  let streak = 0;
+  let d = new Date(state.now);
+  if (!isDone(state.history[dateStr(d)], id)) d.setDate(d.getDate() - 1);
+  while (true) {
+    const ds = dateStr(d);
+    if (isDone(state.history[ds], id)) { streak++; d.setDate(d.getDate() - 1); } else break;
+  }
+  return streak;
+}
+function getStreakSince(id, startDate) {
+  let streak = 0;
+  let d = new Date(state.now);
+  const floorStr = dateStr(startDate);
+  if (!isDone(state.history[dateStr(d)], id)) d.setDate(d.getDate() - 1);
+  while (dateStr(d) >= floorStr) {
+    const ds = dateStr(d);
+    if (isDone(state.history[ds], id)) { streak++; d.setDate(d.getDate() - 1); } else break;
+  }
+  return streak;
+}
+function getGroupStreakSince(ids, startDate) {
+  let streak = 0;
+  let d = new Date(state.now);
+  const floorStr = dateStr(startDate);
+  const allDoneOn = (ds) => { const rec = state.history[ds]; return !!rec && ids.every(id => rec[id]); };
+  if (!allDoneOn(dateStr(d))) d.setDate(d.getDate() - 1);
+  while (dateStr(d) >= floorStr) {
+    const ds = dateStr(d);
+    if (allDoneOn(ds)) { streak++; d.setDate(d.getDate() - 1); } else break;
+  }
+  return streak;
+}
+function rateSingle(id, days, floorDate) {
+  let total = 0, done = 0;
+  for (let i = 0; i < days; i++) {
+    const d = new Date(state.now); d.setDate(d.getDate() - i);
+    if (floorDate && d < floorDate) break;
+    total++;
+    if (isDone(state.history[dateStr(d)], id)) done++;
+  }
+  return total ? Math.round((done / total) * 100) : 0;
+}
+function rateGroup(ids, days, floorDate) {
+  let total = 0, done = 0;
+  for (let i = 0; i < days; i++) {
+    const d = new Date(state.now); d.setDate(d.getDate() - i);
+    if (floorDate && d < floorDate) break;
+    total++;
+    const rec = state.history[dateStr(d)];
+    if (rec && ids.every(id => rec[id])) done++;
+  }
+  return total ? Math.round((done / total) * 100) : 0;
+}
+function rateAvg(ids, days, floorDate) {
+  const rates = ids.map(id => rateSingle(id, days, floorDate));
+  return rates.length ? Math.round(rates.reduce((a, b) => a + b, 0) / rates.length) : 0;
+}
+
+function buildSummaryText() {
+  const lines = [
+    `Foundation Tracker — summary as of ${dateStr(state.now)}`,
+    '',
+    `Study & Work (last 30 days): ${rateAvg(['pwLecture','pwNotes','business','arabic','english'], 30)}% avg`,
+    `  PW Lecture ${rateSingle('pwLecture',30)}% · PW Notes ${rateSingle('pwNotes',30)}% · Business ${rateSingle('business',30)}% · Arabic ${rateSingle('arabic',30)}% · English ${rateSingle('english',30)}%`,
+    '',
+    `Ibadah (last 30 days, since 6 Aug 2026): 5-Salah rate ${rateGroup(SALAH.map(s=>s.id),30,DEEN_FINAL_START)}%, Tahajjud ${rateSingle('tahajjud',30,DEEN_FINAL_START)}%`,
+    `  After-Salah: Dhikr ${rateSingle('dhikr',30,DEEN_FINAL_START)}% · Dua ${rateSingle('dua',30,DEEN_FINAL_START)}% · Sunnah ${rateSingle('sunnah',30,DEEN_FINAL_START)}%`,
+    '',
+    `Character (last 30 days, since 6 Aug 2026): ${rateAvg(CHARACTER.map(c=>c.id),30,DEEN_FINAL_START)}% avg`,
+    ...CHARACTER.map(c => `  ${c.label}: ${rateSingle(c.id,30,DEEN_FINAL_START)}%`),
+  ];
+  return lines.join('\n');
+}
+function downloadCSV() {
+  const keys = Object.keys(emptyDay());
+  const dates = Object.keys(state.history).sort();
+  const header = ['date', ...keys].join(',');
+  const rows = dates.map(ds => {
+    const rec = Object.assign({}, emptyDay(), state.history[ds]);
+    return [ds, ...keys.map(k => rec[k])].join(',');
+  });
+  const csv = [header, ...rows].join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'foundation-tracker-export.csv';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+async function copySummary() {
+  try {
+    await navigator.clipboard.writeText(buildSummaryText());
+    state.copied = true; render();
+    setTimeout(() => { state.copied = false; render(); }, 1800);
+  } catch (e) { /* clipboard unavailable */ }
+}
+
+/* ---------- Render ---------- */
+function esc(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+function renderHeader() {
+  const td = todayData();
+  const rawDay = Math.floor((new Date(state.now.getFullYear(), state.now.getMonth(), state.now.getDate()) - CHALLENGE_START) / 86400000) + 1;
+  const dayNumber = Math.min(Math.max(rawDay, 1), CHALLENGE_LENGTH);
+  const notStarted = rawDay < 1;
+  const done180 = rawDay > CHALLENGE_LENGTH;
+  const completedCount = TASKS.filter(t => isDone(td, t.id)).length;
+  const pct = Math.round((completedCount / TASKS.length) * 100);
+  const r = 22, c = 2 * Math.PI * r;
+  const offset = c - (pct / 100) * c;
+
+  return `
+  <div class="wrap" style="padding-top:28px;padding-bottom:8px;">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;">
+      <div>
+        <div class="display" style="font-size:26px;font-weight:600;letter-spacing:-0.3px;">Foundation</div>
+        <div style="font-size:12.5px;color:var(--cream-dim);margin-top:2px;">${esc(state.now.toLocaleDateString(undefined,{weekday:'long',month:'short',day:'numeric'}))}</div>
+        <div style="font-size:11px;color:var(--green-bright);margin-top:4px;font-weight:600;letter-spacing:0.3px;">
+          ${notStarted ? '180-day run starts Aug 6' : done180 ? '180-day run complete' : `Day ${dayNumber} of ${CHALLENGE_LENGTH}`}
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <button class="btn-ghost" data-action="reset-today" title="Unmark everything for today" style="border:1px solid var(--line-r);color:var(--cream-dim);font-size:10px;border-radius:8px;padding:4px 8px;letter-spacing:0.3px;">reset today</button>
+        <div style="position:relative;width:52px;height:52px;">
+          <svg width="52" height="52" style="transform:rotate(-90deg)">
+            <circle cx="26" cy="26" r="${r}" fill="none" stroke="var(--line-r)" stroke-width="4"/>
+            <circle cx="26" cy="26" r="${r}" fill="none" stroke="var(--green-bright)" stroke-width="4" stroke-dasharray="${c}" stroke-dashoffset="${offset}" stroke-linecap="round" style="transition:stroke-dashoffset .5s ease"/>
+          </svg>
+          <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;">${pct}%</div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderTabs() {
+  const tabs = [ ['today','grid','Today'], ['history','cal','History'], ['insights','bar','Insights'] ];
+  return `
+  <div class="wrap" style="margin-top:14px;">
+    <div style="display:flex;gap:6px;background:var(--bg-panel);border:1px solid var(--line-r);border-radius:12px;padding:4px;">
+      ${tabs.map(([id, ic, label]) => `
+        <button class="tab-btn ${state.view === id ? 'active' : ''}" data-action="set-view" data-view="${id}">
+          ${icon(ic, 13)} ${label}
+        </button>`).join('')}
+    </div>
+  </div>`;
+}
+
+function renderTower() {
+  const td = todayData();
+  const completedCount = TASKS.filter(t => isDone(td, t.id)).length;
+  const confetti = state.celebrate ? Array.from({length:14}).map((_,i) => `
+    <span class="confetti" style="left:${(i*7)%100}%;top:0;animation-delay:${(i%5)*0.12}s;font-size:12px;color:${i%2? 'var(--green-bright)':'var(--red)'}">●</span>`).join('') : '';
+  const floors = TASKS.map((t, i) => {
+    const done = isDone(td, t.id);
+    const skipped = t.id === 'arabic' && td.arabicSkip;
+    const bg = skipped ? 'var(--bg-panel2)' : done
+      ? `repeating-linear-gradient(90deg, var(--green-bright) 0 18px, var(--green) 18px 20px)` : 'var(--bg-panel2)';
+    const borderStyle = skipped ? 'dashed' : 'solid';
+    const borderColor = done ? 'var(--green-bright)' : 'var(--line-r)';
+    const shadow = (done && !skipped) ? '0 0 14px -2px rgba(225,75,59,0.33)' : 'none';
+    const iconColor = (done && !skipped) ? 'var(--bg-deep)' : 'var(--cream-dim)';
+    return `<div class="floor" style="animation-delay:${i*0.08}s;height:34px;border-radius:6px;background:${bg};border:1px ${borderStyle} ${borderColor};display:flex;align-items:center;justify-content:center;box-shadow:${shadow};">
+      ${icon(t.iconName, 15, iconColor)}
+    </div>`;
+  }).join('');
+
+  return `
+  <div class="wrap" style="margin-top:18px;position:relative;">
+    <div style="background:var(--bg-panel);border:1px solid var(--line-r);border-radius:20px;padding:22px 18px 14px;position:relative;overflow:hidden;">
+      ${confetti}
+      <div style="font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--cream-dim);margin-bottom:12px;text-align:center;">
+        ${completedCount === 4 ? 'Structure complete' : `${completedCount}/4 floors built`}
+      </div>
+      <div style="display:flex;flex-direction:column-reverse;gap:6px;max-width:220px;margin:0 auto;">${floors}</div>
+      ${completedCount === 4 ? `<div style="text-align:center;margin-top:10px;font-size:12px;color:var(--green-bright);display:flex;align-items:center;justify-content:center;gap:5px;">${icon('party',13)} full day, well built</div>` : ''}
+    </div>
+  </div>`;
+}
+
+function renderWeekStrip() {
+  const days = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(state.now); d.setDate(d.getDate() - i);
+    const ds = dateStr(d);
+    const rec = state.history[ds];
+    const count = rec ? TASKS.filter(t => isDone(rec, t.id)).length : 0;
+    days.push({ label: dayLabel(d), count, isToday: ds === today() });
+  }
+  return `
+  <div class="wrap" style="margin-top:16px;">
+    <div style="display:flex;justify-content:space-between;background:var(--bg-panel);border:1px solid var(--line-r);border-radius:14px;padding:12px 14px;">
+      ${days.map(d => `
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+          <span style="font-size:10px;color:var(--cream-dim);">${d.label[0]}</span>
+          <div style="width:20px;height:20px;border-radius:6px;background:${d.count===0?'transparent':d.count===4?'var(--green-bright)':'var(--green)'};opacity:${d.count===0?0.3:0.35+d.count*0.16};border:1px solid ${d.isToday?'var(--cream)':'var(--line-r)'};"></div>
+        </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+function isStudyLocked() {
+  const todayMid = new Date(state.now.getFullYear(), state.now.getMonth(), state.now.getDate());
+  return todayMid < CHALLENGE_START;
+}
+
+function renderTaskList() {
+  const td = todayData();
+  const nowMinutes = state.now.getHours() * 60 + state.now.getMinutes();
+  const locked = isStudyLocked();
+  const cards = TASKS.map((t, i) => {
+    const done = isDone(td, t.id);
+    const skipped = t.id === 'arabic' && td.arabicSkip;
+    const missed = !locked && !done && t.id !== 'english' && nowMinutes > t.endMinutes;
+    const streak = getStreak(t.id);
+
+    const iconBoxBg = skipped ? 'var(--bg-panel2)' : done ? 'var(--green-bright)' : missed ? 'var(--red-soft)' : 'var(--bg-panel2)';
+    const iconBoxBorder = skipped ? '1px dashed var(--line-r)' : 'none';
+    const iconInner = skipped ? icon('minusCircle',18,'var(--cream-dim)') : icon(t.iconName, 18, done ? 'var(--bg-deep)' : missed ? 'var(--red)' : 'var(--cream-dim)');
+
+    let subHtml = '';
+    if (t.subTasks) {
+      subHtml = `<div style="display:flex;flex-direction:column;gap:6px;margin-top:9px;">
+        ${t.subTasks.map(st => {
+          const stDone = !!td[st.id];
+          return `<button class="btn-ghost" data-action="toggle-task" data-id="${st.id}" ${locked?'disabled':''} style="display:flex;align-items:center;gap:7px;text-align:left;${locked?'cursor:not-allowed;':''}">
+            ${stDone ? icon('checkCircle',16,'var(--green-bright)') : icon('circle',16,'var(--cream-dim)')}
+            <span style="font-size:12px;color:${stDone?'var(--cream)':'var(--cream-dim)'}">${esc(st.label)}</span>
+          </button>`;
+        }).join('')}
+        ${(!done && (td.pwLecture || td.pwNotes)) ? `<span style="font-size:10.5px;color:var(--cream-dim);">marks final only when both are checked</span>` : ''}
+      </div>`;
+    }
+
+    let arabicSkipHtml = '';
+    if (t.id === 'arabic') {
+      arabicSkipHtml = `<button class="btn-ghost" data-action="toggle-arabic-skip" ${locked?'disabled':''} style="margin-top:5px;font-size:11px;color:${skipped?'var(--cream)':'var(--cream-dim)'};text-decoration:underline;text-decoration-color:var(--line-r);text-underline-offset:2px;${locked?'cursor:not-allowed;':''}">
+        ${skipped ? "marked: class didn't happen today" : "class didn't happen today?"}
+      </button>`;
+    }
+
+    let englishHtml = '';
+    if (t.id === 'english') {
+      englishHtml = `<div style="display:flex;align-items:center;gap:8px;margin-top:8px;">
+        <button class="btn-ghost" data-action="add-english" data-delta="-10" ${locked?'disabled':''} style="width:24px;height:24px;border-radius:50%;border:1px solid var(--line-r);background:var(--bg-panel2);color:var(--cream);display:flex;align-items:center;justify-content:center;${locked?'cursor:not-allowed;':''}">${icon('minus',12)}</button>
+        <span style="font-size:12.5px;min-width:64px;text-align:center;color:var(--cream-dim);">${td.englishMinutes||0} / 40 min</span>
+        <button class="btn-ghost" data-action="add-english" data-delta="10" ${locked?'disabled':''} style="width:24px;height:24px;border-radius:50%;border:1px solid var(--line-r);background:var(--bg-panel2);color:var(--cream);display:flex;align-items:center;justify-content:center;${locked?'cursor:not-allowed;':''}">${icon('plus',12)}</button>
+      </div>`;
+    }
+
+    const streakHtml = streak > 0 ? `<div style="display:flex;align-items:center;gap:4px;margin-top:6px;font-size:11px;color:var(--green-bright);">${icon('flame',12,'currentColor','flame-icon')} ${streak} day streak</div>` : '';
+
+    const rightControl = t.subTasks
+      ? (done ? `${icon('checkCircle',26,'var(--green-bright)','check-pop')}` : '')
+      : `<button class="btn-ghost" data-action="toggle-task" data-id="${t.id}" ${locked?'disabled':''} style="padding:4px;${locked?'cursor:not-allowed;':''}">
+          ${skipped ? icon('minusCircle',26,'var(--cream-dim)') : done ? icon('checkCircle',26,'var(--green-bright)','check-pop') : icon('circle',26,'var(--cream-dim)')}
+        </button>`;
+
+    return `
+    <div class="task-card ${missed?'tension-card':''}" style="animation-delay:${i*0.06}s;background:var(--bg-panel);border:1px solid ${missed?'var(--red)':'var(--line-r)'};border-radius:16px;padding:14px;display:flex;align-items:center;gap:12px;position:relative;${locked?'opacity:0.55;':''}">      <div class="${missed?'tension':''}" style="width:40px;height:40px;border-radius:12px;flex-shrink:0;background:${iconBoxBg};border:${iconBoxBorder};display:flex;align-items:center;justify-content:center;">${iconInner}</div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:14.5px;font-weight:600;">${esc(t.label)}</div>
+        <div style="font-size:11.5px;color:${missed?'var(--red)':'var(--cream-dim)'};margin-top:1px;display:flex;align-items:center;gap:4px;">
+          ${missed?icon('alert',11):''} ${esc(t.time)}
+        </div>
+        ${arabicSkipHtml}
+        ${subHtml}
+        ${englishHtml}
+        ${streakHtml}
+      </div>
+      ${rightControl}
+    </div>`;
+  }).join('');
+
+  return `<div class="wrap" style="margin-top:18px;display:flex;flex-direction:column;gap:10px;">${cards}</div>`;
+}
+
+function renderDeenBanner() {
+  const todayMid = new Date(state.now.getFullYear(), state.now.getMonth(), state.now.getDate());
+  const locked = todayMid < DEEN_TRIAL_START;
+  const trial = !locked && todayMid < DEEN_FINAL_START;
+  const rawDay = Math.floor((todayMid - DEEN_FINAL_START) / 86400000) + 1;
+  const dayNumber = Math.min(Math.max(rawDay, 1), DEEN_LENGTH);
+  const finished = rawDay > DEEN_LENGTH;
+
+  const bg = locked ? 'var(--red-soft)' : trial ? 'var(--bg-panel2)' : 'var(--deen-soft)';
+  const border = locked ? 'var(--red)' : trial ? 'var(--line-r)' : 'var(--deen-line)';
+  const color = locked ? 'var(--red)' : trial ? 'var(--cream-dim)' : 'var(--deen)';
+  const text = locked
+    ? 'Deen tracker locked — trial opens 5 Aug 2026, official 1-year run starts 6 Aug 2026'
+    : trial
+      ? "Trial mode — testing before the official 1-year run starts 6 Aug 2026 (marks here don't count toward the streak)"
+      : finished
+        ? '1-year Deen journey complete'
+        : `Day ${dayNumber} of ${DEEN_LENGTH} · started 6 Aug 2026`;
+
+  return { locked, trial, html: `
+  <div class="wrap" style="margin-top:22px;">
+    <div style="display:flex;align-items:center;gap:8px;border-radius:12px;padding:10px 12px;background:${bg};border:1px solid ${border};">
+      ${locked ? icon('alert',14,'var(--red)') : ''}
+      <span style="font-size:11.5px;color:${color};">${text}</span>
+    </div>
+  </div>` };
+}
+
+function renderIbadah(locked) {
+  const td = todayData();
+  const salahStreak = getGroupStreakSince(SALAH.map(s=>s.id), DEEN_FINAL_START);
+  const dis = (s) => locked ? `opacity:0.55;cursor:not-allowed;` : `cursor:pointer;`;
+
+  const salahGrid = SALAH.map(s => {
+    const done = !!td[s.id];
+    return `<button class="btn-ghost" data-action="toggle-deen" data-id="${s.id}" ${locked?'disabled':''} style="display:flex;flex-direction:column;align-items:center;gap:5px;background:${done?'var(--deen-soft)':'var(--bg-panel2)'};border:1px solid ${done?'var(--deen)':'var(--line-r)'};border-radius:10px;padding:9px 2px;${dis()}">
+      ${icon(s.iconName,15,done?'var(--deen)':'var(--cream-dim)')}
+      <span style="font-size:9.5px;color:${done?'var(--cream)':'var(--cream-dim)'};">${esc(s.label)}</span>
+    </button>`;
+  }).join('');
+
+  const afterSalah = AFTER_SALAH.map(a => {
+    const done = !!td[a.id];
+    return `<button class="btn-ghost" data-action="toggle-deen" data-id="${a.id}" ${locked?'disabled':''} style="display:flex;align-items:center;gap:9px;text-align:left;${dis()}">
+      ${done?icon('checkCircle',17,'var(--deen)'):icon('circle',17,'var(--cream-dim)')}
+      ${icon(a.iconName,13,done?'var(--deen)':'var(--cream-dim)')}
+      <span style="font-size:12.5px;color:${done?'var(--cream)':'var(--cream-dim)'};">${esc(a.label)}</span>
+    </button>`;
+  }).join('');
+
+  return `
+  <div class="wrap" style="margin-top:14px;${locked?'opacity:0.55;':''}">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+      <div class="display" style="font-size:16px;font-weight:600;color:var(--deen);">Ibadah</div>
+      ${salahStreak>0?`<div style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--deen);">${icon('flame',12,'currentColor','flame-icon')} ${salahStreak} day streak</div>`:''}
+    </div>
+    <div style="background:var(--bg-panel);border:1px solid var(--deen-line);border-radius:16px;padding:16px;">
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;">${salahGrid}</div>
+      <button class="btn-ghost" data-action="toggle-deen" data-id="${TAHAJJUD.id}" ${locked?'disabled':''} style="display:flex;align-items:center;gap:8px;margin-top:8px;width:100%;border:1px dashed ${td.tahajjud?'var(--deen)':'var(--line-r)'};border-radius:10px;padding:8px 10px;${dis()}">
+        ${icon(TAHAJJUD.iconName,14,td.tahajjud?'var(--deen)':'var(--cream-dim)')}
+        <span style="font-size:11.5px;color:${td.tahajjud?'var(--cream)':'var(--cream-dim)'};">Tahajjud (bonus)</span>
+        ${td.tahajjud?`<span style="margin-left:auto;">${icon('checkCircle',14,'var(--deen)')}</span>`:''}
+      </button>
+      <div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--cream-dim);margin:14px 0 8px;">After Salah</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">${afterSalah}</div>
+    </div>
+  </div>`;
+}
+
+function renderCharacter(locked) {
+  const td = todayData();
+  const rows = CHARACTER.map((c, i) => {
+    const done = !!td[c.id];
+    const streak = getStreakSince(c.id, DEEN_FINAL_START);
+    return `
+    <div style="display:flex;align-items:center;gap:10px;padding:10px 10px;${i<CHARACTER.length-1?'border-bottom:1px solid var(--bg-panel2);':''}">
+      <div style="width:30px;height:30px;border-radius:9px;flex-shrink:0;background:${done?'var(--green-bright)':'var(--bg-panel2)'};display:flex;align-items:center;justify-content:center;">
+        ${icon(c.iconName,14,done?'var(--bg-deep)':'var(--cream-dim)')}
+      </div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:13px;font-weight:500;">${esc(c.label)}</div>
+        ${streak>0?`<div style="display:flex;align-items:center;gap:3px;font-size:10px;color:var(--green-bright);margin-top:1px;">${icon('flame',10,'currentColor','flame-icon')} ${streak}d</div>`:''}
+      </div>
+      <button class="btn-ghost" data-action="toggle-deen" data-id="${c.id}" ${locked?'disabled':''} style="padding:2px;${locked?'cursor:not-allowed;':'cursor:pointer;'}">
+        ${done?icon('checkCircle',22,'var(--green-bright)','check-pop'):icon('circle',22,'var(--cream-dim)')}
+      </button>
+    </div>`;
+  }).join('');
+
+  return `
+  <div class="wrap" style="margin-top:22px;${locked?'opacity:0.55;':''}">
+    <div class="display" style="font-size:16px;font-weight:600;margin-bottom:8px;">Character Development</div>
+    <div style="background:var(--bg-panel);border:1px solid var(--line-r);border-radius:16px;padding:6px;">${rows}</div>
+  </div>`;
+}
+
+function renderHistory() {
+  const dates = Object.keys(state.history).sort().reverse();
+  if (dates.length === 0) {
+    return `<div class="wrap" style="margin-top:18px;"><div style="text-align:center;color:var(--cream-dim);font-size:12.5px;padding:20px 0;">No days logged yet.</div></div>`;
+  }
+  const rows = dates.map(ds => {
+    const rec = Object.assign({}, emptyDay(), state.history[ds]);
+    const isOpen = state.expandedDate === ds;
+    const d = new Date(ds + 'T00:00:00');
+    const summary = HISTORY_GROUPS.map(g => {
+      const doneN = g.items.filter(it => rec[it.id]).length;
+      return `<span style="font-size:10px;color:${doneN===g.items.length?'var(--green-bright)':'var(--cream-dim)'};">${esc(g.title.split(' ')[0])} ${doneN}/${g.items.length}</span>`;
+    }).join('');
+    let detail = '';
+    if (isOpen) {
+      detail = `<div style="padding:0 14px 14px;display:flex;flex-direction:column;gap:12px;">
+        ${HISTORY_GROUPS.map(g => `
+          <div>
+            <div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--cream-dim);margin-bottom:6px;">${esc(g.title)}</div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;">
+              ${g.items.map(it => {
+                const skippedDay = it.id === 'arabic' && rec.arabicSkip;
+                const on = !!rec[it.id];
+                return `<span style="display:flex;align-items:center;gap:4px;font-size:11px;color:${skippedDay?'var(--cream-dim)':on?'var(--cream)':'var(--cream-dim)'};background:${(on||skippedDay)?'var(--bg-panel2)':'transparent'};border:1px ${skippedDay?'dashed':'solid'} ${(on||skippedDay)?'var(--line-r)':'transparent'};border-radius:8px;padding:3px 7px;">
+                  ${skippedDay?icon('minusCircle',11,'var(--cream-dim)'):on?icon('checkCircle',11,'var(--green-bright)'):icon('circle',11,'var(--cream-dim)')}
+                  ${esc(it.label)}${skippedDay?' (not held)':''}
+                </span>`;
+              }).join('')}
+            </div>
+          </div>`).join('')}
+        ${rec.englishMinutes>0?`<div style="font-size:11px;color:var(--cream-dim);">English logged: ${rec.englishMinutes} min</div>`:''}
+      </div>`;
+    }
+    return `
+    <div style="background:var(--bg-panel);border:1px solid var(--line-r);border-radius:14px;overflow:hidden;">
+      <button class="btn-ghost" data-action="toggle-history" data-date="${ds}" style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:12px 14px;color:var(--cream);">
+        <div style="text-align:left;">
+          <div style="font-size:13px;font-weight:600;">${esc(d.toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'}))}</div>
+          <div style="display:flex;gap:8px;margin-top:4px;">${summary}</div>
+        </div>
+        ${isOpen?icon('chevronUp',16,'var(--cream-dim)'):icon('chevronDown',16,'var(--cream-dim)')}
+      </button>
+      ${detail}
+    </div>`;
+  }).join('');
+  return `<div class="wrap" style="margin-top:18px;display:flex;flex-direction:column;gap:8px;">${rows}</div>`;
+}
+
+function insightBlock(title, rows, accent) {
+  return `
+  <div style="background:var(--bg-panel);border:1px solid var(--line-r);border-radius:16px;padding:16px;">
+    <div class="display" style="font-size:14.5px;font-weight:600;margin-bottom:12px;">${esc(title)}</div>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      ${rows.map(([label,pct]) => `
+        <div>
+          <div style="display:flex;justify-content:space-between;font-size:11.5px;color:var(--cream-dim);margin-bottom:4px;"><span>${esc(label)}</span><span>${pct}%</span></div>
+          <div style="height:6px;border-radius:4px;background:var(--bg-panel2);overflow:hidden;"><div style="height:100%;width:${pct}%;background:${accent};border-radius:4px;transition:width .5s ease;"></div></div>
+        </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+function renderInsights() {
+  const study = insightBlock('Study & Work — last 30 days', [
+    ['PW Lecture', rateSingle('pwLecture',30)],
+    ['PW Notes', rateSingle('pwNotes',30)],
+    ['P&I Business', rateSingle('business',30)],
+    ['Arabic Class', rateSingle('arabic',30)],
+    ['English', rateSingle('english',30)],
+  ], 'var(--green-bright)');
+  const ibadah = insightBlock('Ibadah — last 30 days (since 6 Aug 2026)', [
+    ['5 Salah (all done)', rateGroup(SALAH.map(s=>s.id),30,DEEN_FINAL_START)],
+    ['Tahajjud', rateSingle('tahajjud',30,DEEN_FINAL_START)],
+    ['Dhikr', rateSingle('dhikr',30,DEEN_FINAL_START)],
+    ['Dua', rateSingle('dua',30,DEEN_FINAL_START)],
+    ['Sunnah', rateSingle('sunnah',30,DEEN_FINAL_START)],
+  ], 'var(--deen)');
+  const character = insightBlock('Character — last 30 days (since 6 Aug 2026)',
+    CHARACTER.map(c => [c.label, rateSingle(c.id,30,DEEN_FINAL_START)]), 'var(--green-bright)');
+
+  return `
+  <div class="wrap" style="margin-top:18px;display:flex;flex-direction:column;gap:16px;">
+    ${study}${ibadah}${character}
+    <div style="background:var(--bg-panel);border:1px solid var(--line-r);border-radius:16px;padding:16px;">
+      <div class="display" style="font-size:14.5px;font-weight:600;margin-bottom:10px;">Export your data</div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn-ghost" data-action="download-csv" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;background:var(--green-bright);color:var(--bg-deep);border-radius:10px;padding:10px 0;font-size:12.5px;font-weight:600;">${icon('download',14)} CSV</button>
+        <button class="btn-ghost" data-action="copy-summary" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;background:var(--bg-panel2);color:var(--cream);border:1px solid var(--line-r);border-radius:10px;padding:10px 0;font-size:12.5px;font-weight:600;">
+          ${state.copied?icon('check',14):icon('clipboard',14)} ${state.copied?'Copied':'Copy summary'}
+        </button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function render() {
+  const app = document.getElementById('app');
+  if (state.loading) {
+    app.innerHTML = `<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;"><div style="color:var(--cream-dim);font-size:14px;letter-spacing:1px;">loading foundation…</div></div>`;
+    return;
+  }
+
+  let html = renderHeader() + renderTabs();
+
+  if (state.view === 'today') {
+    const deen = renderDeenBanner();
+    html += renderTower() + renderWeekStrip() + renderTaskList() + deen.html + renderIbadah(deen.locked) + renderCharacter(deen.locked);
+  } else if (state.view === 'history') {
+    html += renderHistory();
+  } else if (state.view === 'insights') {
+    html += renderInsights();
+  }
+
+  if (state.saveError) {
+    html += `<div class="wrap" style="margin-top:14px;"><div style="font-size:11.5px;color:var(--red);text-align:center;">Couldn't save — check connection and try again.</div></div>`;
+  }
+
+  app.innerHTML = html;
+}
+
+/* ---------- Event delegation ---------- */
+document.getElementById('app').addEventListener('click', (e) => {
+  const el = e.target.closest('[data-action]');
+  if (!el) return;
+  const action = el.dataset.action;
+  if (action === 'set-view') { state.view = el.dataset.view; state.expandedDate = null; render(); }
+  else if (action === 'reset-today') { resetToday(); }
+  else if (action === 'toggle-task') { if (isStudyLocked()) return; toggleTask(el.dataset.id); }
+  else if (action === 'toggle-arabic-skip') { if (isStudyLocked()) return; toggleArabicSkip(); }
+  else if (action === 'add-english') { if (isStudyLocked()) return; addEnglishMinutes(parseInt(el.dataset.delta, 10)); }
+  else if (action === 'toggle-deen') {
+    const todayMid = new Date(state.now.getFullYear(), state.now.getMonth(), state.now.getDate());
+    if (todayMid < DEEN_TRIAL_START) return; // locked
+    toggleTask(el.dataset.id);
+  }
+  else if (action === 'toggle-history') { state.expandedDate = state.expandedDate === el.dataset.date ? null : el.dataset.date; render(); }
+  else if (action === 'download-csv') { downloadCSV(); }
+  else if (action === 'copy-summary') { copySummary(); }
+});
+
+/* ---------- Init ---------- */
+setInterval(() => { state.now = new Date(); render(); }, 30000);
+loadHistory();
+</script>
+</body>
+</html>
